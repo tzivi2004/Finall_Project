@@ -17,7 +17,8 @@ app.use(express.json())
 app.use("/api/User",require("./route/RouteUser")) 
 app.use("/api/Product",require("./route/RouteProduct"))
 app.use("/api/Portion",require("./route/RoutePortion"))
-// app.use("api/auth",require("./route/RouteAuth"))
+app.use("/api/Order",require("./route/RouteOrder"))
+app.use("/api/auth",require("./route/RouteAuth"))
 
 // const uploadFolder = path.join(__dirname, '../image') // נתיב לתיקיית uploads
 // app.use('/uploads', express.static(uploadFolder)) // גישה לתמונות דרך '/uploads'
