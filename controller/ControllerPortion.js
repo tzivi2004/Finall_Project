@@ -1,19 +1,15 @@
-const Portion = require('../models/Portion')
+const Dose = require('../models/Portion')
 
 const createNewPortion = async (req, res) => {
     const { name, description, image, price, category, ingredients } = req.body
     if (!name || !category) {
         return res.status(400).json({ message: "Name & category are required" })
     }
-<<<<<<< HEAD
-    const newPortion = await Portion.findOne({ description })
-=======
-    const newPortion = await Dose.findOne({ name })
->>>>>>> 58b5029e72782bd7ad3819a7755c0c8a09928d74
-    if (newPortion) {
+    const newDose = await Dose.findOne({ name })
+    if (newDose) {
         return res.status(400).json({ message: "Dose already exists" })
     }
-    const portion = await Portion.create({
+    const dose = await Dose.create({
         name,
         description,
         image,
@@ -21,15 +17,15 @@ const createNewPortion = async (req, res) => {
         category,
         ingredients
     })
-    res.json({ message: "Dose created successfully", portion })
+    res.json({ message: "Dose created successfully", dose })
 }
 
 const getAllPortions = async (req, res) => {
-    const portions = await Portion.find().lean()
-    if (!portions?.length) {
+    const doses = await Dose.find().lean()
+    if (!doses?.length) {
         return res.status(404).json({ message: "No doses found" })
     }
-    res.json(portions)
+    res.json(doses)
 }
 
 

@@ -44,11 +44,7 @@ const orderSchema = new Schema({
     },
     EventDate: {
         type: Date,
-<<<<<<< HEAD
-        // required: true,
-=======
         required: true,
->>>>>>> 58b5029e72782bd7ad3819a7755c0c8a09928d74
     },
     StartEventTime: {
         type: String,

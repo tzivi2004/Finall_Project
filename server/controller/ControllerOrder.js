@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+<<<<<<< HEAD
 const User = require('../models/User');
 const sendEmail = require('../middleware/emailService'); // Assuming you have a utility function to send emails
 const createNewOrder = async (req, res) => {
@@ -6,6 +7,14 @@ const createNewOrder = async (req, res) => {
     // if (!user || !doses || !NumberOfDiners || !HallAddress || !totalPrice || !HallName || !EventDate || !StartEventTime) {
     //     return res.status(400).json({ message: "User, doses, NumberOfDiners ,HallAddress and totalPrice are required" });
     // }
+=======
+
+const createNewOrder = async (req, res) => {
+    const { user, doses, NumberOfDiners, status, HallAddress, HallName, EventDate, StartEventTime, EventType, Notes, PaymentStatus, PaymentMethod, totalPrice } = req.body;
+    if (!user || !doses || !NumberOfDiners || !HallAddress || !totalPrice || !HallName || !EventDate || !StartEventTime) {
+        return res.status(400).json({ message: "User, doses, NumberOfDiners ,HallAddress and totalPrice are required" });
+    }
+>>>>>>> 58b5029e72782bd7ad3819a7755c0c8a09928d74
     const existingOrder = await Order.findOne({ user, NumberOfDiners, HallAddress, EventDate }).lean()
     if (existingOrder) {
         return res.status(409).json({ message: "Order already exists" });
@@ -29,6 +38,7 @@ const createNewOrder = async (req, res) => {
     if (!newOrder) {
         return res.status(400).json({ message: "Invalid order data received" });
     }
+<<<<<<< HEAD
     const UserEmail = await User.findById(user).lean()
     if (!UserEmail) {
         return res.status(404).json({ message: "User not found" });
@@ -38,6 +48,12 @@ const createNewOrder = async (req, res) => {
         const email = UserEmail.email
         const subject = "Your order has been received!"
         const text = `Dear ${UserEmail.name},\n\nYour order has been successfully created.\n\nOrder Details:\n-The menu is:${doses}\n- Number of Diners: ${NumberOfDiners}\n- Hall Address: ${HallAddress}\n- Event Date: ${EventDate}\n- Start Event Time: ${StartEventTime}\n\nThank you for choosing us!\n\nBest regards,\nYour Company`
+=======
+    if (user.email) {
+        const email = user.email
+        const subject = "Your order has been received!"
+        const text = `Dear ${user.name},\n\nYour order has been successfully created.\n\nOrder Details:\n-The menu is:${doses}\n- Number of Diners: ${NumberOfDiners}\n- Hall Address: ${HallAddress}\n- Event Date: ${EventDate}\n- Start Event Time: ${StartEventTime}\n\nThank you for choosing us!\n\nBest regards,\nYour Company`
+>>>>>>> 58b5029e72782bd7ad3819a7755c0c8a09928d74
         const sendmail = await sendEmail(email, subject, text)
         if (sendmail) {
             console.log(`Email sent to ${email}`);

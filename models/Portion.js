@@ -17,10 +17,6 @@ const portionSchema = new mongoose.Schema({
     },  
     category:{
         type:String,
-<<<<<<< HEAD
-        enum: ['On the table','salad', 'first course', 'main course', 'Extras','dessert'],
-=======
->>>>>>> 58b5029e72782bd7ad3819a7755c0c8a09928d74
         required:true,
     },
     ingredients: [
