@@ -13,7 +13,6 @@ export default function LoginDemo() {
     const [password,setPassword] = useState("")
 
     const login = async ()=>{
-<<<<<<< HEAD
         try {            console.log("fdhdgfj");
             console.log(userName);
             const {res} = await Axios.post("http://localhost:1233/api/auth/login", {username:userName,password:password})
@@ -28,11 +27,7 @@ export default function LoginDemo() {
 
 
 
-=======
-        const res = await Axios.post("http://localhost:1233/api/auth/login", {userName,password})
 
-        
->>>>>>> 58b5029e72782bd7ad3819a7755c0c8a09928d74
     }
 
 

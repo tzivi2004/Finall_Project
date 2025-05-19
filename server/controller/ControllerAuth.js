@@ -5,11 +5,8 @@ const jwt = require('jsonwebtoken')
 
 const login = async (req, res) => {
     const {username,password} = req.body
-<<<<<<< HEAD
     console.log({username,password});
-    
-=======
->>>>>>> 58b5029e72782bd7ad3819a7755c0c8a09928d74
+
     if (!username || !password) {
         return res.status(400).json({ message: "Username and password are required" })
     }
@@ -23,11 +20,8 @@ const login = async (req, res) => {
     } 
     const userInfo = {_id: foundUser._id, username: foundUser.username,name: foundUser.name, roles: foundUser.roles,email: foundUser.email, phone: foundUser.phone}
     const accessToken = jwt.sign(userInfo, process.env.ACCESS_TOKEN_SECRET) 
-<<<<<<< HEAD
     res.json({ accessToken }) 
-=======
-    res.json({ accessToken , userInfo }) 
->>>>>>> 58b5029e72782bd7ad3819a7755c0c8a09928d74
+
 }
 
 const register = async (req, res) => {

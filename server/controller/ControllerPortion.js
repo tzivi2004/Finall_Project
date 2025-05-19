@@ -5,11 +5,8 @@ const createNewPortion = async (req, res) => {
     if (!name || !category) {
         return res.status(400).json({ message: "Name & category are required" })
     }
-<<<<<<< HEAD
     const newPortion = await Portion.findOne({ description })
-=======
-    const newPortion = await Dose.findOne({ name })
->>>>>>> 58b5029e72782bd7ad3819a7755c0c8a09928d74
+
     if (newPortion) {
         return res.status(400).json({ message: "Dose already exists" })
     }
