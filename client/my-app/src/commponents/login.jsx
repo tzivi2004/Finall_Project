@@ -4,10 +4,15 @@ import { Divider } from 'primereact/divider';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import Axios from "axios"
+import { useDispatch,useSelector } from 'react-redux';
+import { setToken, setUser,setRole } from '../redux/tokenSlice';
+import { useNavigate } from 'react-router-dom'; // ייבוא useNavigate
 
 export default function LoginDemo() {
 
+    const dispatch = useDispatch();
 
+    const navigate = useNavigate(); // יצירת פונקציה לניווט
 
     const [userName,setUserName] = useState("")
     const [password,setPassword] = useState("")
@@ -15,11 +20,12 @@ export default function LoginDemo() {
     const login = async ()=>{
         try {            console.log("fdhdgfj");
             console.log(userName);
-            const {res} = await Axios.post("http://localhost:1233/api/auth/login", {username:userName,password:password})
-
-
-            console.log(res);
-            
+            const {data} = await Axios.post("http://localhost:1233/api/auth/login", {username:userName,password:password})
+            dispatch(setUser(data.user));
+            dispatch(setRole(data.role));
+            dispatch(setToken(data.accessToken));
+            console.log(data);
+            navigate('/')
         }
         catch (ex) {
 

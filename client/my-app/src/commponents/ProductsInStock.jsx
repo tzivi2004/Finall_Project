@@ -4,6 +4,9 @@ import { DataScroller } from 'primereact/datascroller';
 import { Rating } from 'primereact/rating';
 import { Tag } from 'primereact/tag';
 import Axios from "axios"
+import addProduct from './addProduct';
+import AddProduct from './addProduct';
+// import { deletProduct } from '../../../../server/controller/ControllerProduct';
 
 export default function ProductsInStock() {
     const [Product, setProduct] = useState([]);
@@ -14,26 +17,40 @@ export default function ProductsInStock() {
     const getProduct = async () => {
         try {
             const { data } = await Axios.get("http://localhost:1233/api/Product")
-            console.log(data);
             setProduct(data)
         }
         catch (ex) {
             console.log(ex);
 
-            // <Button icon="pi pi-user-plus" label="Add User" onClick={()=>addUserEzer()} />
+            <Button icon="pi pi-plus" label="Add Product" onClick={() => addProductEzer()} />
         }
+    }
+
+    const deletProduct = async (id) => {
+        try { 
+            const { data } = await Axios.delete(`http://localhost:1233/api/Product/${id}`)
+            getProduct()
+        }
+        catch (ex) {
+            console.log(ex);
+        }
+    }
+
+        const updateProductEzer = (Product) => {
+        SetMyUpdatProduct(Product)
+        setProductUpdateState(true)
     }
 
     const addProductEzer = () => {
         SetMyUpdatProduct({})
         setProductUpdateState(true)
     }
+    
     useEffect(() => {
         getProduct()
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const getSeverity = (product) => {
-        console.log(product.QuantityInStock);
 
         if (product.QuantityInStock > 7)
             return 'success';
@@ -66,8 +83,8 @@ export default function ProductsInStock() {
                         </div>
                         <div className="flex flex-row lg:flex-column align-items-center lg:align-items-end gap-4 lg:gap-2">
                             <span className="text-2xl font-semibold">${data.price}</span>
-                            <Button icon="pi pi-refresh" label="Update" disabled={data.inventoryStatus === 'OUTOFSTOCK'}></Button>
-                            <Button icon="pi pi-times" label="Delete" disabled={data.inventoryStatus === 'OUTOFSTOCK'}></Button>
+                            <Button icon="pi pi-refresh" label="Update" onClick={() =>{updateProductEzer(data)}}></Button>
+                            <Button icon="pi pi-times" label="Delete" onClick={() =>{deletProduct(data._id)}} disabled={data.inventoryStatus === 'OUTOFSTOCK'}></Button>
                             <Tag value={` The Count Of This Product Is: ${data.QuantityInStock}`} severity={getSeverity(data)}></Tag>
                         </div>
                     </div>
@@ -80,7 +97,7 @@ export default function ProductsInStock() {
         <>
             <div className="card">{
 
-                ProductUpdateState ? <addProduct setPostUpdateState={setProductUpdateState} visible={ProductUpdateState} setProduct={setProduct} Product={Product} SetMyUpdatProduct={SetMyUpdatProduct} MyUpdatProduct={MyUpdatProduct} getProduct={getProduct}></addProduct> :
+                ProductUpdateState ? <AddProduct ProductUpdateState={ProductUpdateState} getProduct={getProduct} setProductUpdateState={setProductUpdateState} MyUpdatProduct={MyUpdatProduct}></AddProduct> :
                     <><div className="card flex justify-content-center"> <Button icon="pi pi-plus" label="Add Product" onClick={() => addProductEzer()} /></div><DataScroller value={Product} itemTemplate={itemTemplate} rows={5} inline scrollHeight="500px" header="Scroll Down to Load More" /> </>
 
                 //  setProductUpdateState?<addProduct ></addProduct>:

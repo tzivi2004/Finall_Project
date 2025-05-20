@@ -39,8 +39,8 @@ const getProductById = async (req,res)=>{
 }
 
 const updateProduct = async (req, res) => {
-    const { id, name, allergens, store, price, category, QuantityInStock } = req.body
-    const updateProduct = await Product.findById(id).exec()
+    const { _id, name, allergens, store, price, category, QuantityInStock } = req.body
+    const updateProduct = await Product.findById(_id).exec()
     if (!updateProduct) {
         return res.status(404).json({message: "This Product Not Found!"})
     }
