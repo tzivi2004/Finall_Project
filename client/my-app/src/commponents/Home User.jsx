@@ -4,14 +4,16 @@ import { InputText } from 'primereact/inputtext';
 import { Badge } from 'primereact/badge';
 import { Avatar } from 'primereact/avatar';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import { Button } from 'primereact/button';
-import { logOut  } from '../redux/tokenSlice';
+import { logOut } from '../redux/tokenSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
-export default function Home() {
-    // const { token, role, user } = useSelector((state) => state.token);
-    const dispatch = useDispatch();
+
+
+export default function HomeUser() {
+    const { token, role, user } = useSelector((state) => state.token);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     // const itemRenderer = (item) => (
     //     <a className="flex align-items-center p-menuitem-link">
     //         <span className={item.icon} />
@@ -37,16 +39,13 @@ export default function Home() {
                 navigate('./login')
             }
 
-        },
-
-        {
+        },{
             label: 'menu',
             icon: 'pi pi-list-check',
             command: () => {
                 navigate('./menu')
             }
-        },
-
+        }
 
 
         // {
@@ -103,21 +102,21 @@ export default function Home() {
     ];
 
 
-const end = (
-    <div className="flex align-items-center gap-2">
-        <InputText placeholder="Search" type="text" className="w-8rem sm:w-auto" />
-        <Button rounded text severity="secondary" aria-label="Bookmark" icon="pi pi-sign-out"
+    const end = (
+        <div className="flex align-items-center gap-2">
+            <InputText placeholder="Search" type="text" className="w-8rem sm:w-auto" />
+            <Button rounded text severity="secondary" aria-label="Bookmark" icon="pi pi-sign-out"
                 onClick={() => {
                     dispatch(logOut());
                     navigate('/');
                 }} />
             <Avatar image="logo.png" shape="circle" />
-    </div>
-);
+        </div>
+    );
 
-return (
-    <div className="card">
-        <Menubar model={items} end={end} />
-    </div>
-)
+    return (
+        <div className="card">
+            <Menubar model={items} end={end} />
+        </div>
+    )
 }

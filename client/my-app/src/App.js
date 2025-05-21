@@ -6,6 +6,8 @@ import Home  from './commponents/Home';
 
 import Menu  from './commponents/menu';
 import ProductsInStock from './commponents/ProductsInStock'; 
+import HomeUser from './commponents/Home User';
+import HomeAdmin from './commponents/HomeAdmin';
 import { useDispatch,useSelector } from 'react-redux';
 
 function App() {
@@ -13,7 +15,8 @@ function App() {
 
     return (
         <>
-              { role=="Admin" ?<Home></Home>:role=="User"?<Home></Home>:<h1>אתה לא מחובר</h1>}
+             <HomeAdmin></HomeAdmin>
+              {/* { role=="Admin" ?<HomeAdmin></HomeAdmin>:role=="User"?<HomeUser></HomeUser>:<Home></Home>} */}
                 <Routes>
                     <Route path='/' element={<h1>wellcome!!!</h1>}></Route>
                     <Route path='/login' element={<LoginDemo/>}></Route>

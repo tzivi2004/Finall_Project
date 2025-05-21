@@ -71,9 +71,9 @@ export default function Menu() {
         );
     };
 
-    const gridItem = (product) => {
+    const gridItem = (product,index) => {
         return (
-            <div className="col-12 sm:col-6 lg:col-12 xl:col-4 p-2" key={product.id}>
+            <div className="col-12 sm:col-6 lg:col-12 xl:col-4 p-2" >
                 <div className="p-4 border-1 surface-border surface-card border-round">
                     <div className="flex flex-wrap align-items-center justify-content-between gap-2">
                         <div className="flex align-items-center gap-2">
@@ -119,7 +119,7 @@ export default function Menu() {
 
     return (
         <div className="card">
-            <DataView value={products} listTemplate={listTemplate} layout={layout} header={header()} />
+            <DataView   value={products} listTemplate={listTemplate} layout={layout} header={header()} />
         </div>
     )
 }

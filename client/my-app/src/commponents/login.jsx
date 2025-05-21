@@ -14,6 +14,8 @@ export default function LoginDemo() {
 
     const navigate = useNavigate(); // יצירת פונקציה לניווט
 
+
+
     const [userName,setUserName] = useState("")
     const [password,setPassword] = useState("")
 
@@ -30,11 +32,8 @@ export default function LoginDemo() {
         catch (ex) {
 
         }
-
-
-
-
     }
+
 
 
     return (

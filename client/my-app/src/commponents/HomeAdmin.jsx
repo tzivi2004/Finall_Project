@@ -8,8 +8,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button } from 'primereact/button';
 import { logOut  } from '../redux/tokenSlice';
 
-export default function Home() {
-    // const { token, role, user } = useSelector((state) => state.token);
+export default function HomeAdmin() {
+    const { token, role, user } = useSelector((state) => state.token);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     // const itemRenderer = (item) => (
@@ -28,6 +28,7 @@ export default function Home() {
                 navigate('./')
             }
         },
+        role!=="Admin"&&role!=="User"?
         {
             label: 'login',
 
@@ -37,8 +38,7 @@ export default function Home() {
                 navigate('./login')
             }
 
-        },
-
+        }:{},
         {
             label: 'menu',
             icon: 'pi pi-list-check',
@@ -46,7 +46,14 @@ export default function Home() {
                 navigate('./menu')
             }
         },
-
+        // role==="Admin"?
+        {
+            label: 'ProductsInStock',
+            icon: 'pi pi-list-check',
+            command: () => {
+                navigate('./products')
+            }
+        },
 
 
         // {
@@ -106,11 +113,11 @@ export default function Home() {
 const end = (
     <div className="flex align-items-center gap-2">
         <InputText placeholder="Search" type="text" className="w-8rem sm:w-auto" />
-        <Button rounded text severity="secondary" aria-label="Bookmark" icon="pi pi-sign-out"
+        {role==="Admin"||role==="User"?<Button rounded text severity="secondary" aria-label="Bookmark" icon="pi pi-sign-out"
                 onClick={() => {
                     dispatch(logOut());
                     navigate('/');
-                }} />
+                }} />:<></>}
             <Avatar image="logo.png" shape="circle" />
     </div>
 );

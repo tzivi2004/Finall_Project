@@ -4,6 +4,8 @@ const cors = require('cors')
 const corsOptions = require('./config/corsOptions')
 const mongoose = require('mongoose')
 const coonsctDB = require('./config/dbConn')
+const multer = require('multer');
+const path = require('path');
 // const path = require('path') // ייבוא path
 
 const app = express()
