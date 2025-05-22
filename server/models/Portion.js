@@ -9,8 +9,8 @@ const portionSchema = new mongoose.Schema({
         type:String,
     },
     image:{
-        type:[String],
-        default:[]
+        type:String,
+        default:""
     },
     price:{
         type:Number,

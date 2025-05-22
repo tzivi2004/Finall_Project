@@ -1,7 +1,7 @@
 const Portion = require('../models/Portion')
 
 const createNewPortion = async (req, res) => {
-    const { name, description, image, price, category, ingredients } = req.body
+    const { name, description, price, category  } = req.body
     if (!name || !category) {
         return res.status(400).json({ message: "Name & category are required" })
     }

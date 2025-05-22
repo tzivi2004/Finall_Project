@@ -28,17 +28,6 @@ export default function HomeAdmin() {
                 navigate('./')
             }
         },
-        role!=="Admin"&&role!=="User"?
-        {
-            label: 'login',
-
-            icon: 'pi pi-sign-in',
-
-            command: () => {
-                navigate('./login')
-            }
-
-        }:{},
         {
             label: 'menu',
             icon: 'pi pi-list-check',
@@ -46,14 +35,14 @@ export default function HomeAdmin() {
                 navigate('./menu')
             }
         },
-        // role==="Admin"?
+        role==="Admin"?
         {
             label: 'ProductsInStock',
             icon: 'pi pi-list-check',
             command: () => {
                 navigate('./products')
             }
-        },
+        }:{},
 
 
         // {
@@ -113,11 +102,15 @@ export default function HomeAdmin() {
 const end = (
     <div className="flex align-items-center gap-2">
         <InputText placeholder="Search" type="text" className="w-8rem sm:w-auto" />
-        {role==="Admin"||role==="User"?<Button rounded text severity="secondary" aria-label="Bookmark" icon="pi pi-sign-out"
+        {role?<Button rounded text severity="secondary"  aria-label="Bookmark" icon="pi pi-sign-out"
                 onClick={() => {
                     dispatch(logOut());
                     navigate('/');
-                }} />:<></>}
+                }} />:<Button rounded text severity="secondary" aria-label="Bookmark" icon="pi pi-sign-in"
+                onClick={() => {
+                        navigate('./login')
+
+                }} />}
             <Avatar image="logo.png" shape="circle" />
     </div>
 );
