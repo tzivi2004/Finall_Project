@@ -29,6 +29,51 @@ const getAllPortions = async (req, res) => {
     res.json(portions)
 }
 
+const getPortionById = async (req, res) => {
+    const { id } = req.params
+    if (!id) {
+        return res.status(400).json({ message: "Id is required" })
+    }
+    const portion = await Portion.findById(id).lean()
+    if (!portion) {
+        return res.status(404).json({ message: "Poryion not found" })
+    }
+    res.json(portion)
+}
+
+const updatePortion = async (req, res) => {
+    const { id, name, description, image, price, category, ingredients } = req.body
+    if (!id) {
+        return res.status(400).json({ message: "Id , name & category are required" })
+    }
+    const portion = await Portion.findById(id).exec()
+    if (!portion) {
+        return res.status(404).json({ message: "Portion not found" })
+    }
+    portion.name = name,
+        portion.description = description,
+        portion.description = description,
+        portion.image = image,
+        portion.price = price,
+        portion.category = category,
+        portion.ingredients = ingredients
+    const Updateportion = await portion.save()
+    res.json({ message: "Portion updated successfully", Updateportion })
+}
+
+const deletePortion = async (req, res) => {
+    const { id } = req.params
+    if (!id) {
+        return res.status(400).json({ message: "Id is required" })
+    }
+    const portion = await Portion.findById(id).exec()
+    if (!portion) {
+        return res.status(404).json({ message: "Portion not found" })
+    }
+    const deletedPortion = await portion.deleteOne(id)
+    res.json({ message: "Portion deleted successfully", portion })
+}
 
 
-module.exports = { createNewPortion ,getAllPortions}
+
+module.exports = { createNewPortion, getAllPortions , getPortionById, updatePortion, deletePortion }

@@ -25,6 +25,27 @@ app.use("/api/auth",require("./route/RouteAuth"))
 // const uploadFolder = path.join(__dirname, '../image') // נתיב לתיקיית uploads
 // app.use('/uploads', express.static(uploadFolder)) // גישה לתמונות דרך '/uploads'
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage: storage });
+
+// גישה לתמונות מהדפדפן
+app.use('/uploads', express.static('uploads'));
+
+// מסלול להעלאת תמונה ל-Portion (אפשר להעביר ל-route נפרד)
+app.post('/api/Portion/upload-image', upload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  // הנתיב היחסי לתמונה
+  const imageUrl = `/uploads/${req.file.filename}`;
+  res.json({ imageUrl });
+});
+
 
 mongoose.connection.once('open',()=>{
     console.log('Connected to MongoDB');
