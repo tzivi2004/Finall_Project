@@ -6,13 +6,15 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import Axios  from 'axios';
+import { useSelector } from 'react-redux';
 
 export default function Order() {
     const [order, setOrder] = useState([]);
     const [expandedRows, setExpandedRows] = useState(null);
+    const {token} = useSelector((state)=>state.token)
     const toast = useRef(null);
 
-
+    // ,{header:`Bearer ${token}`}
     const getAllOrders = async ()=>{
         try {
             const { data } = await Axios.get("http://localhost:1233/api/Order")
@@ -49,7 +51,7 @@ export default function Order() {
     };
 
     const formatCurrency = (value) => {
-        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        // return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     };
 
     const amountBodyTemplate = (rowData) => {
@@ -64,9 +66,9 @@ export default function Order() {
         return <Button icon="pi pi-search" />;
     };
 
-    const imageBodyTemplate = (rowData) => {
-        return <img src={`https://primefaces.org/cdn/primereact/images/product/${rowData.image}`} alt={rowData.image} width="64px" className="shadow-4" />;
-    };
+    // const imageBodyTemplate = (rowData) => {
+    //     return <img src={`https://primefaces.org/cdn/primereact/images/product/${rowData.image}`} alt={rowData.image} width="64px" className="shadow-4" />;
+    // };
 
     const priceBodyTemplate = (order) => {
         return formatCurrency(order.price);
@@ -115,21 +117,21 @@ export default function Order() {
         }
     };
 
-    const allowExpansion = (rowData) => {
-        return rowData.orders.length > 0;
+    const allowExpansion = (order) => {
+        return order.length > 0;
     };
 
     const rowExpansionTemplate = (data) => {
         return (
             <div className="p-3">
-                <h5>Orders for {data.name}</h5>
-                <DataTable value={data.orders}>
+                <h5>Orders for {data.user}</h5>
+                <DataTable value={data.doses}>
                     <Column field="id" header="Id" sortable></Column>
                     <Column field="customer" header="Customer" sortable></Column>
                     <Column field="date" header="Date" sortable></Column>
-                    <Column field="amount" header="Amount" body={amountBodyTemplate} sortable></Column>
+                    {/* <Column field="amount" header="Amount" body={amountBodyTemplate} sortable></Column>
                     <Column field="status" header="Status" body={statusOrderBodyTemplate} sortable></Column>
-                    <Column headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column>
+                    <Column headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column> */}
                 </DataTable>
             </div>
         );
@@ -148,7 +150,7 @@ export default function Order() {
             <DataTable value={order} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)}
                     onRowExpand={onRowExpand} onRowCollapse={onRowCollapse} rowExpansionTemplate={rowExpansionTemplate}
                     dataKey="id" header={header} tableStyle={{ minWidth: '60rem' }}>
-                {/* <Column expander={allowExpansion} style={{ width: '5rem' }} /> */}
+                <Column expander={allowExpansion} style={{ width: '5rem' }} />
                 <Column field="name" header="Name" sortable />
                 {/* <Column header="Image" body={imageBodyTemplate} /> */}
                 <Column field="price" header="Price" sortable body={priceBodyTemplate} />

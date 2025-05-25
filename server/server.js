@@ -36,16 +36,18 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // גישה לתמונות מהדפדפן
-app.use('/uploads', express.static('uploads'));
 
 // מסלול להעלאת תמונה ל-Portion (אפשר להעביר ל-route נפרד)
-app.post('/api/Portion/upload-image', upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+app.post('/api/Portion/upload-image', upload.array("images[]", 10),(req, res) => {
+  if (!req.files) return res.status(400).json({ error: 'No file uploaded' });
   // הנתיב היחסי לתמונה
-  const imageUrl = `/uploads/${req.file.filename}`;
-  res.json({ imageUrl });
+  const files = req.files.map((file) => ({
+    url: `http://localhost:1233/uploads/${file.filename}`, // Construct file URL
+  }));
+  res.json(files );
 });
 
+app.use('/uploads', express.static('uploads'));
 
 mongoose.connection.once('open',()=>{
     console.log('Connected to MongoDB');

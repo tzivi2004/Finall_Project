@@ -9,8 +9,8 @@ const portionSchema = new mongoose.Schema({
         type:String,
     },
     image:{
-        type:String,
-        default:""
+        type:[String],
+        default:[]
     },
     price:{
         type:Number,
@@ -22,17 +22,13 @@ const portionSchema = new mongoose.Schema({
         required:true,
     },
     ingredients: [
-        {
-            product: {
+        
+         {   product: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Product', 
                 required: true,
-            },
-            quantity: {
-                type: Number,
-                required: true,
-            },
-        },
+            }}
+        
     ], 
 
 

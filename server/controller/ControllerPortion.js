@@ -1,11 +1,12 @@
 const Portion = require('../models/Portion')
 
 const createNewPortion = async (req, res) => {
-    const { name, description, price, category  } = req.body
+    const { name, description, price, category ,image ,ingredients} = req.body
+    console.log(    name, description, price, category );
     if (!name || !category) {
         return res.status(400).json({ message: "Name & category are required" })
     }
-    const newPortion = await Portion.findOne({ description })
+    const newPortion = await Portion.findOne({ name, category }).lean().exec()
 
     if (newPortion) {
         return res.status(400).json({ message: "Dose already exists" })
@@ -62,16 +63,25 @@ const updatePortion = async (req, res) => {
 }
 
 const deletePortion = async (req, res) => {
-    const { id } = req.params
-    if (!id) {
-        return res.status(400).json({ message: "Id is required" })
+    console.log("delete Portion");
+    
+    // const { id } = req.params
+    // if (!id) {
+    //     return res.status(400).json({ message: "Id is required" })
+    // }
+    // const portion = await Portion.findById(id).exec()
+    // if (!portion) {
+    //     return res.status(404).json({ message: "Portion not found" })
+    // }
+    // const deletedPortion = await portion.deleteOne(id)
+    // res.json({ message: "Portion deleted successfully", portion })
+        const {id} = req.params
+    const deletPorion = await Portion.findById(id).exec()
+    if(!deletPorion){
+        return res.status(404).json({message:"This Porion Not Exist!"})
     }
-    const portion = await Portion.findById(id).exec()
-    if (!portion) {
-        return res.status(404).json({ message: "Portion not found" })
-    }
-    const deletedPortion = await portion.deleteOne(id)
-    res.json({ message: "Portion deleted successfully", portion })
+    const DeletPorion = await deletPorion.deleteOne()
+    res.send(`The Porion ${deletPorion.name} deleted!!`)
 }
 
 

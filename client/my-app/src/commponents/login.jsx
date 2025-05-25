@@ -50,6 +50,7 @@ export default function LoginDemo() {
         }
     }
 
+
     const SignUpEzer = () => {
         console.log("Gfdh");
         setSignUp(true)
@@ -162,6 +163,7 @@ export default function LoginDemo() {
                                 </span>
                                 {getFormErrorMessage('body')}
                             </div>
+                          
                             <Button type="submit" label={"Add User"} className="mt-2" />
                         </form>
                     </div>
