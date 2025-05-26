@@ -5,18 +5,18 @@ import { Rating } from 'primereact/rating';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
-import Axios  from 'axios';
+import Axios from 'axios';
 import { useSelector } from 'react-redux';
 
 export default function Order() {
     const [order, setOrder] = useState([]);
     const [user, setUser] = useState([]);
     const [expandedRows, setExpandedRows] = useState(null);
-    const {token} = useSelector((state)=>state.token)
+    const { token } = useSelector((state) => state.token)
     const toast = useRef(null);
 
     // ,{header:`Bearer ${token}`}
-    const getAllOrders = async ()=>{
+    const getAllOrders = async () => {
         try {
             const { data } = await Axios.get("http://localhost:1233/api/Order")
             setOrder(data)
@@ -43,7 +43,7 @@ export default function Order() {
     const expandAll = () => {
         let _expandedRows = {};
 
-        order.forEach((p) => (_expandedRows[`${p.id}`] = true));
+        order.forEach((p) => (_expandedRows[`${p._id}`] = true));
 
         setExpandedRows(_expandedRows);
     };
@@ -65,7 +65,7 @@ export default function Order() {
     };
 
     const searchBodyTemplate = () => {
-        return <Button icon="pi pi-search" />;
+        return <Button icon="pi pi-refresh" />;
     };
 
     // const imageBodyTemplate = (rowData) => {
@@ -77,22 +77,22 @@ export default function Order() {
     };
 
     const ratingBodyTemplate = (rowData) => {
-        return <Rating value={rowData.rating} readOnly cancel={false} />;
+        return <Rating value={rowData.status} readOnly cancel={false} />;
     };
 
     const statusBodyTemplate = (rowData) => {
-        return <Tag value={rowData.status} severity={getOrdereverity(rowData)}></Tag>;
+        return <Tag  value={rowData.status} severity={getOrdereverity(rowData)}></Tag>;
     };
 
     const getOrdereverity = (product) => {
-        switch (product.inventoryStatus) {
-            case 'INSTOCK':
+        switch (product.status) {
+            case 'Completed':
                 return 'success';
 
-            case 'LOWSTOCK':
+            case 'In Progress':
                 return 'warning';
 
-            case 'OUTOFSTOCK':
+            case 'Pending':
                 return 'danger';
 
             default:
@@ -131,10 +131,8 @@ export default function Order() {
                 <DataTable value={data.doses}>
                     <Column field="dose.name" header="name" body={data.doses.dose} sortable></Column>
                     <Column field="quantity" header="quantity" sortable></Column>
-                    {/* <Column field="date" header="Date" sortable></Column> */}
                     {/* <Column field="amount" header="Amount" body={amountBodyTemplate} sortable></Column> */}
                     {/* <Column field="status" header="Status" body={statusOrderBodyTemplate} sortable></Column> */}
-                    {/* <Column headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column> */}
                 </DataTable>
             </div>
         );
@@ -151,17 +149,28 @@ export default function Order() {
         <div className="card">
             <Toast ref={toast} />
             <DataTable value={order} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)}
-                    onRowExpand={onRowExpand} onRowCollapse={onRowCollapse} rowExpansionTemplate={rowExpansionTemplate}
-                    dataKey="id" header={header} tableStyle={{ minWidth: '60rem' }}>
+                onRowExpand={onRowExpand} onRowCollapse={onRowCollapse} rowExpansionTemplate={rowExpansionTemplate}
+                dataKey="_id" header={header} tableStyle={{ minWidth: '60rem' }}>
                 <Column expander={allowExpansion} style={{ width: '5rem' }} />
                 <Column field="user.name" header="User" sortable />
                 {/* <Column header="Image" body={imageBodyTemplate} /> */}
-                <Column field="totalPrice" header="Price" sortable body={priceBodyTemplate} />
-                <Column field="StartEventTime" header="EventType" sortable />
+                <Column field="totalPrice" header="Total Price" sortable body={priceBodyTemplate} />
+                <Column field="StartEventTime" header="Start Event Time" sortable />
                 {/* <Column field="rating" header="Reviews" sortable body={ratingBodyTemplate} /> */}
+                {/* <Column field="date" header="Date" sortable></Column> */}
+                <Column field="EventType" header="Event Type" sortable />
+                <Column field="HallName" header="Hall Name" sortable />
+                <Column field="HallAddress" header="Hall Address" sortable />
+                <Column field="EventDate" header="Event Date" sortable />
+
+                <Column field="Notes" header="Notes" sortable />
+                <Column field="NumberOfDiners" header="Number of Diners" sortable />
+                {/* <Column field="StartEventTime" header="Start Event Time" sortable /> */}
+                {/* <Column field="amount" header="Amount" body={amountBodyTemplate} sortable /> */}
                 <Column field="status" header="Status" sortable body={statusBodyTemplate} />
+                <Column header="Update" headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column>
+
             </DataTable>
         </div>
     );
 }
-        

@@ -141,12 +141,13 @@ const listTemplate = (Protions, layout) => {
                 <div className="p-4 border-1 surface-border surface-card border-round">
                     <div className="flex flex-wrap align-items-center justify-content-between gap-2">
                         <div className="flex align-items-center gap-2">
+                            <div className="text-2xl font-bold">{Protion.name}</div>
                             <i className="pi pi-tag"></i>
                             <span className="font-semibold">{Protion.category}</span>
                         </div>
                         {/* <Tag value={Protion.inventoryStatus} severity={getSeverity(Protion)}></Tag> */}
                     </div>
-                    <div className="text-2xl font-bold">{Protion.name}</div>
+                    
                     <div className="flex flex-column align-items-center gap-3 py-5">
                         <img className="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" src={`${Protion.image[0]}`} alt={Protion.name[0]} />
                           <span className="text-2xl font-semibold">{Protion.price}₪</span> 
