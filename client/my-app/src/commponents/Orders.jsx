@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 
 export default function Order() {
     const [order, setOrder] = useState([]);
+    const [user, setUser] = useState([]);
     const [expandedRows, setExpandedRows] = useState(null);
     const {token} = useSelector((state)=>state.token)
     const toast = useRef(null);
@@ -19,6 +20,7 @@ export default function Order() {
         try {
             const { data } = await Axios.get("http://localhost:1233/api/Order")
             setOrder(data)
+            console.log(data);
         }
         catch (ex) {
             console.log(ex);
@@ -51,7 +53,7 @@ export default function Order() {
     };
 
     const formatCurrency = (value) => {
-        // return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     };
 
     const amountBodyTemplate = (rowData) => {
@@ -70,8 +72,8 @@ export default function Order() {
     //     return <img src={`https://primefaces.org/cdn/primereact/images/product/${rowData.image}`} alt={rowData.image} width="64px" className="shadow-4" />;
     // };
 
-    const priceBodyTemplate = (order) => {
-        return formatCurrency(order.price);
+    const priceBodyTemplate = (rowData) => {
+        return formatCurrency(rowData.totalPrice);
     };
 
     const ratingBodyTemplate = (rowData) => {
@@ -79,7 +81,7 @@ export default function Order() {
     };
 
     const statusBodyTemplate = (rowData) => {
-        return <Tag value={rowData.inventoryStatus} severity={getOrdereverity(rowData)}></Tag>;
+        return <Tag value={rowData.status} severity={getOrdereverity(rowData)}></Tag>;
     };
 
     const getOrdereverity = (product) => {
@@ -117,21 +119,22 @@ export default function Order() {
         }
     };
 
-    const allowExpansion = (order) => {
-        return order.length > 0;
+    const allowExpansion = (rowData) => {
+        return rowData.doses.length > 0;
     };
 
     const rowExpansionTemplate = (data) => {
+        console.log(data);
         return (
             <div className="p-3">
-                <h5>Orders for {data.user}</h5>
+                <h5>Orders for {data.user.name}</h5>
                 <DataTable value={data.doses}>
-                    <Column field="id" header="Id" sortable></Column>
-                    <Column field="customer" header="Customer" sortable></Column>
-                    <Column field="date" header="Date" sortable></Column>
-                    {/* <Column field="amount" header="Amount" body={amountBodyTemplate} sortable></Column>
-                    <Column field="status" header="Status" body={statusOrderBodyTemplate} sortable></Column>
-                    <Column headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column> */}
+                    <Column field="dose.name" header="name" body={data.doses.dose} sortable></Column>
+                    <Column field="quantity" header="quantity" sortable></Column>
+                    {/* <Column field="date" header="Date" sortable></Column> */}
+                    {/* <Column field="amount" header="Amount" body={amountBodyTemplate} sortable></Column> */}
+                    {/* <Column field="status" header="Status" body={statusOrderBodyTemplate} sortable></Column> */}
+                    {/* <Column headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column> */}
                 </DataTable>
             </div>
         );
@@ -151,12 +154,12 @@ export default function Order() {
                     onRowExpand={onRowExpand} onRowCollapse={onRowCollapse} rowExpansionTemplate={rowExpansionTemplate}
                     dataKey="id" header={header} tableStyle={{ minWidth: '60rem' }}>
                 <Column expander={allowExpansion} style={{ width: '5rem' }} />
-                <Column field="name" header="Name" sortable />
+                <Column field="user.name" header="User" sortable />
                 {/* <Column header="Image" body={imageBodyTemplate} /> */}
-                <Column field="price" header="Price" sortable body={priceBodyTemplate} />
-                <Column field="category" header="Category" sortable />
-                {/* <Column field="rating" header="Reviews" sortable body={ratingBodyTemplate} />
-                <Column field="inventoryStatus" header="Status" sortable body={statusBodyTemplate} /> */}
+                <Column field="totalPrice" header="Price" sortable body={priceBodyTemplate} />
+                <Column field="StartEventTime" header="EventType" sortable />
+                {/* <Column field="rating" header="Reviews" sortable body={ratingBodyTemplate} /> */}
+                <Column field="status" header="Status" sortable body={statusBodyTemplate} />
             </DataTable>
         </div>
     );

@@ -29,9 +29,8 @@ export default function Menu() {
             setProtions(data)
         }
         catch (ex) {
-            console.log(ex);
-
-            // <Button icon="pi pi-user-plus" label="Add User" onClick={()=>addUserEzer()} />
+            
+            <Button icon="pi pi-plus" label="Add Portion" onClick={()=>addProtionEzer()} />
         }
     }
     const deletProtion = async (id) => {

@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const User = require('../models/User');
+const Portion = require('../models/Portion')
 const sendEmail = require('../middleware/emailService'); // Assuming you have a utility function to send emails
 const createNewOrder = async (req, res) => {
     const { user, doses, NumberOfDiners, status, HallAddress, HallName, EventDate, StartEventTime, EventType, Notes, PaymentStatus, PaymentMethod, totalPrice } = req.body;
@@ -53,8 +54,7 @@ const createNewOrder = async (req, res) => {
 
 
 const getAllOrders = async (req, res) => {
-    const orders = await Order.find().lean()
-    // .populate('user', 'name username').populate('doses.dose', 'name')
+    const orders = await Order.find().populate('user').populate('doses.dose',{name:1,quantity:1}).lean()
     if (!orders?.length) {
         return res.status(404).json({ message: "No orders found" });
     }

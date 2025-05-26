@@ -25,7 +25,8 @@ const createNewPortion = async (req, res) => {
 const getAllPortions = async (req, res) => {
     const portions = await Portion.find().lean()
     if (!portions?.length) {
-        return res.status(404).json({ message: "No doses found" })
+        return res.json([])
+        // return res.status(404).json({ message: "No doses found" })
     }
     res.json(portions)
 }
