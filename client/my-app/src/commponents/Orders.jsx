@@ -53,7 +53,7 @@ export default function Order() {
     };
 
     const formatCurrency = (value) => {
-        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        return value.toLocaleString('en-US', { style: 'currency', currency: 'ILS' });
     };
 
     const amountBodyTemplate = (rowData) => {
@@ -161,7 +161,7 @@ export default function Order() {
                 <Column field="EventType" header="Event Type" sortable />
                 <Column field="HallName" header="Hall Name" sortable />
                 <Column field="HallAddress" header="Hall Address" sortable />
-                <Column field="EventDate" header="Event Date" sortable />
+                <Column field="EventDate" header="Event Date" sortable body={rowData => new Date(rowData.EventDate).toLocaleDateString('he-IL')} />
 
                 <Column field="Notes" header="Notes" sortable />
                 <Column field="NumberOfDiners" header="Number of Diners" sortable />

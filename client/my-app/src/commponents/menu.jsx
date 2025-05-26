@@ -10,11 +10,14 @@ import { setToken, setUser, setRole } from '../redux/tokenSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { MultiStateCheckbox } from 'primereact/multistatecheckbox';
 import { Checkbox } from "primereact/checkbox";
-
+import { InputNumber } from 'primereact/inputnumber';
+import { Dialog } from "primereact/dialog"
 
 
 export default function Menu() {
     const categoryOrder = ['On the table', 'salad', 'first course', 'main course', 'Extras', 'dessert'];
+    const [value, setValue] = useState(60);
+    const [errorMsg, setErrorMsg] = useState('');
 
     const { token, role, user } = useSelector((state) => state.token);
     const dispatch = useDispatch();
@@ -84,15 +87,18 @@ export default function Menu() {
         return (
             <div>
                 {categoryOrder.map(category =>
-                grouped[category] && grouped[category].length > 0 && (
-                    <div key={category}>
-                        <h3 style={{ marginTop: '2rem', color: "#fba661", backgroundColor: "#61dafb" }}>{category}</h3>
-                        <div className="grid grid-nogutter">
-                            {grouped[category].map((Protion, index) => itemTemplate(Protion, layout, index))}
+                    grouped[category] && grouped[category].length > 0 && (
+                        <div key={category}>
+                            <h3 style={{ marginTop: '2rem', color: "#fba661", backgroundColor: "#61dafb" }}>{category}</h3>
+                            <h5 style={{ marginTop: '2rem', color: "#fba661", backgroundColor: "#61dafb" }}>{`You can choose ${value>=60?"3 ":"2"} Product in this categorya:` }</h5>
+
+                            
+                            <div className="grid grid-nogutter">
+                                {grouped[category].map((Protion, index) => itemTemplate(Protion, layout, index))}
+                            </div>
                         </div>
-                    </div>
-                )
-            )}
+                    )
+                )}
             </div>
         );
     };
@@ -119,9 +125,9 @@ export default function Menu() {
     const handleCheck = (category, protionId, checked) => {
         setCheckedItemsByCategory(prev => {
             const prevChecked = prev[category] || [];
-
+const num = value>=60?3:2
             if (checked) {
-                if (prevChecked.length >= 3) {
+                if (prevChecked.length >= num) {
                     return prev;
                 }
                 return {
@@ -137,6 +143,19 @@ export default function Menu() {
         });
     };
 
+    const handleValueChange = (e) => {
+        if (e.value < 60 && e.value > 40) {
+            setValue(e.value)
+            setErrorMsg('פחות מ 60 איש המחיר בתוספת של ₪10 למנה');
+        }
+        else if (e.value <= 40) {
+            setErrorMsg('אי אפשר להזמין פחות מ 40 מנות');
+        }
+        else {
+            setValue(e.value)
+            setErrorMsg('');
+        }
+    }
 
     const listItem = (Protion, index) => {
         return (
@@ -159,9 +178,9 @@ export default function Menu() {
                         <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
 
                             {token && role === "Admin" ?
-                                    <><Button icon="pi pi-refresh" label="Update" onClick={() => { updateProtionEzer(Protion) }}></Button>
-                                        <Button icon="pi pi-times" label="Delete" onClick={() => { deletProtion(Protion) }}></Button></>:<></>}
-                            {token?<>
+                                <><Button icon="pi pi-refresh" label="Update" onClick={() => { updateProtionEzer(Protion) }}></Button>
+                                    <Button icon="pi pi-times" label="Delete" onClick={() => { deletProtion(Protion) }}></Button></> : <></>}
+                            {token ? <>
                                 <div className="card flex justify-content-center">
                                     <label htmlFor="ingredient1" className="ml-2">Choose me: 👍</label>
                                     <Checkbox
@@ -176,8 +195,8 @@ export default function Menu() {
                                         }
                                     />
                                 </div></>
-                                 :<></>}
-                            
+                                : <></>}
+
                         </div>
                     </div>
                 </div>
@@ -205,25 +224,25 @@ export default function Menu() {
                     </div>
                     <div className="flex align-items-center justify-content-between">
 
-                    {token && role === "Admin" ?
-                                    <><Button icon="pi pi-refresh" label="Update" onClick={() => { updateProtionEzer(Protion) }}></Button>
-                                        <Button icon="pi pi-times" label="Delete" onClick={() => { deletProtion(Protion) }}></Button></>:<></>}
-                            {token?<>
-                                <div className="card flex justify-content-center">
-                                    <label htmlFor="ingredient1" className="ml-2">Choose me: 👍</label>
-                                    <Checkbox
-                                        // onChange={  e => {setCheckedItems( prev => ({ ...prev, [Protion._id]: e.checked }) ) 
-                                        // console.log(checkedItems);}}
-                                        // checked={!!checkedItems[Protion._id]}
-                                        onChange={e => handleCheck(Protion.category, Protion._id, e.checked)}
-                                        checked={checkedItemsByCategory[Protion.category]?.includes(Protion._id) || false}
-                                        disabled={
-                                            !checkedItemsByCategory[Protion.category]?.includes(Protion._id) &&
-                                            (checkedItemsByCategory[Protion.category]?.length >= 3)
-                                        }
-                                    />
-                                </div></>
-                                 :<></>}
+                        {token && role === "Admin" ?
+                            <><Button icon="pi pi-refresh" label="Update" onClick={() => { updateProtionEzer(Protion) }}></Button>
+                                <Button icon="pi pi-times" label="Delete" onClick={() => { deletProtion(Protion) }}></Button></> : <></>}
+                        {token ? <>
+                            <div className="card flex justify-content-center">
+                                <label htmlFor="ingredient1" className="ml-2">Choose me: 👍</label>
+                                <Checkbox
+                                    // onChange={  e => {setCheckedItems( prev => ({ ...prev, [Protion._id]: e.checked }) ) 
+                                    // console.log(checkedItems);}}
+                                    // checked={!!checkedItems[Protion._id]}
+                                    onChange={e => handleCheck(Protion.category, Protion._id, e.checked)}
+                                    checked={checkedItemsByCategory[Protion.category]?.includes(Protion._id) || false}
+                                    disabled={
+                                        !checkedItemsByCategory[Protion.category]?.includes(Protion._id) &&
+                                        (checkedItemsByCategory[Protion.category]?.length >= 3)
+                                    }
+                                />
+                            </div></>
+                            : <></>}
                     </div>
                 </div>
             </div>
@@ -245,9 +264,16 @@ export default function Menu() {
 
     const header = () => {
         return (
+
             <div className="flex justify-content-end">
+                {token ? <div className="flex-auto">
+                    <label htmlFor="minmax-buttons" className="font-bold block mb-2">Number Of Diners</label>
+                    <InputNumber inputId="minmax-buttons" value={value} onValueChange={handleValueChange} mode="decimal" showButtons min={40} />
+                    {errorMsg && <div style={{ color: 'red', marginTop: 8 }}>{errorMsg}</div>}
+                </div> : <></>}
                 <DataViewLayoutOptions layout={layout} onChange={(e) => setLayout(e.value)} />
             </div>
+
         );
     };
 
