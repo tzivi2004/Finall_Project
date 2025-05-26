@@ -227,7 +227,7 @@ function Image({
                     url="http://localhost:1233/api/Portion/upload-image" // Replace with the correct API endpoint
                     multiple // Allow selecting multiple files
                     accept="image/*" // Accept only image files
-                    maxFileSize={1000000} // Max file size: 1MB
+                    maxFileSize={100000000} // Max file size: 1MB
 
                     onUpload={onUpload}
                     chooseLabel="הוספת תמונות"

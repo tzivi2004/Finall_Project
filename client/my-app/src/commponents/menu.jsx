@@ -8,10 +8,14 @@ import Axios from 'axios'
 import Image from './image';
 import { setToken, setUser, setRole } from '../redux/tokenSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { MultiStateCheckbox } from 'primereact/multistatecheckbox';
+import { Checkbox } from "primereact/checkbox";
 
 
 
 export default function Menu() {
+    const categoryOrder = ['On the table', 'salad', 'first course', 'main course', 'Extras', 'dessert'];
+
     const { token, role, user } = useSelector((state) => state.token);
     const dispatch = useDispatch();
     const [Protions, setProtions] = useState([]);
@@ -19,7 +23,8 @@ export default function Menu() {
     const [ProtionUpdateState, setProtionUpdateState] = useState(false)
     const [Protion, setProtion] = useState([]);
     const [MyUpdatProtion, SetMyUpdatProtion] = useState([])
-
+    // const [checkedItems, setCheckedItems] = useState({});
+    const [checkedItemsByCategory, setCheckedItemsByCategory] = useState({});
 
     const getProtions = async () => {
         try {
@@ -29,15 +34,18 @@ export default function Menu() {
             setProtions(data)
         }
         catch (ex) {
-            
-            <Button icon="pi pi-plus" label="Add Portion" onClick={()=>addProtionEzer()} />
+
+            <Button icon="pi pi-plus" label="Add Portion" onClick={() => addProtionEzer()} />
         }
     }
-    const deletProtion = async (id) => {
+    const deletProtion = async (Protion) => {
         try {
-            console.log(`id ${id}`);
-
-            const { data } = await Axios.delete(`http://localhost:1233/api/Portion/${id}`)
+            console.log(JSON.stringify(Protion.image[0]));
+            await Axios.delete('http://localhost:1233/api/Portion/delete-image', {
+                data: { url: Protion.image[0] },
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const { data } = await Axios.delete(`http://localhost:1233/api/Portion/${Protion._id}`)
             getProtions()
         }
         catch (ex) {
@@ -60,33 +68,34 @@ export default function Menu() {
     }, []);
 
 
+    const groupByCategory = (items) => {
+        // יוצרת אובייקט שבו כל מפתח הוא קטגוריה והערך הוא מערך של מנות באותה קטגוריה
+        return items.reduce((groups, item) => {
+            const category = item.category || 'ללא קטגוריה'; // אם אין קטגוריה, תן שם ברירת מחדל
+            if (!groups[category]) groups[category] = [];    // אם עדיין אין מערך לקטגוריה, צור אותו
+            groups[category].push(item);                      // הוסף את המנה למערך של הקטגוריה
+            return groups;
+        }, {});
+    };
 
-    
-  const groupByCategory = (items) => {
-    // יוצרת אובייקט שבו כל מפתח הוא קטגוריה והערך הוא מערך של מנות באותה קטגוריה
-    return items.reduce((groups, item) => {
-        const category = item.category || 'ללא קטגוריה'; // אם אין קטגוריה, תן שם ברירת מחדל
-        if (!groups[category]) groups[category] = [];    // אם עדיין אין מערך לקטגוריה, צור אותו
-        groups[category].push(item);                      // הוסף את המנה למערך של הקטגוריה
-        return groups;
-    }, {});
-};
-        
-const listTemplate = (Protions, layout) => {
-    const grouped = groupByCategory(Protions); // קיבוץ כל המנות לפי קטגוריה
-    return (
-        <div>
-            {Object.keys(grouped).sort().map(category => ( // עבור כל קטגוריה (ממוינת)
-                <div key={category}>
-                    <h3 style={{marginTop: '2rem',color:"#fba661", backgroundColor:"#61dafb"}} >{category}</h3> {/* כותרת של הקטגוריה */}
-                    <div className="grid grid-nogutter"  >
-                        {grouped[category].map((Protion, index) => itemTemplate(Protion, layout, index))} {/* הצגת כל המנות בקטגוריה */}
+    const listTemplate = (Protions, layout) => {
+        const grouped = groupByCategory(Protions); // קיבוץ כל המנות לפי קטגוריה
+        console.log(grouped);
+        return (
+            <div>
+                {categoryOrder.map(category =>
+                grouped[category] && grouped[category].length > 0 && (
+                    <div key={category}>
+                        <h3 style={{ marginTop: '2rem', color: "#fba661", backgroundColor: "#61dafb" }}>{category}</h3>
+                        <div className="grid grid-nogutter">
+                            {grouped[category].map((Protion, index) => itemTemplate(Protion, layout, index))}
+                        </div>
                     </div>
-                </div>
-            ))}
-        </div>
-    );
-};
+                )
+            )}
+            </div>
+        );
+    };
 
     const getSeverity = (Protion) => {
         switch (Protion.inventoryStatus) {
@@ -103,6 +112,31 @@ const listTemplate = (Protions, layout) => {
                 return null;
         }
     };
+
+
+
+
+    const handleCheck = (category, protionId, checked) => {
+        setCheckedItemsByCategory(prev => {
+            const prevChecked = prev[category] || [];
+
+            if (checked) {
+                if (prevChecked.length >= 3) {
+                    return prev;
+                }
+                return {
+                    ...prev,
+                    [category]: [...prevChecked, protionId]
+                };
+            } else {
+                return {
+                    ...prev,
+                    [category]: prevChecked.filter(id => id !== protionId)
+                };
+            }
+        });
+    };
+
 
     const listItem = (Protion, index) => {
         return (
@@ -123,11 +157,27 @@ const listTemplate = (Protions, layout) => {
                             <span className="text-2xl font-semibold">{Protion.price}₪</span>
                         </div>
                         <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
+
+                            {token && role === "Admin" ?
+                                    <><Button icon="pi pi-refresh" label="Update" onClick={() => { updateProtionEzer(Protion) }}></Button>
+                                        <Button icon="pi pi-times" label="Delete" onClick={() => { deletProtion(Protion) }}></Button></>:<></>}
+                            {token?<>
+                                <div className="card flex justify-content-center">
+                                    <label htmlFor="ingredient1" className="ml-2">Choose me: 👍</label>
+                                    <Checkbox
+                                        // onChange={  e => {setCheckedItems( prev => ({ ...prev, [Protion._id]: e.checked }) ) 
+                                        // console.log(checkedItems);}}
+                                        // checked={!!checkedItems[Protion._id]}
+                                        onChange={e => handleCheck(Protion.category, Protion._id, e.checked)}
+                                        checked={checkedItemsByCategory[Protion.category]?.includes(Protion._id) || false}
+                                        disabled={
+                                            !checkedItemsByCategory[Protion.category]?.includes(Protion._id) &&
+                                            (checkedItemsByCategory[Protion.category]?.length >= 3)
+                                        }
+                                    />
+                                </div></>
+                                 :<></>}
                             
-                       {role!=="User"?<Button icon="pi pi-check" className="p-button-rounded" ></Button>:
-                         <><Button icon="pi pi-refresh" label="Update" onClick={() => { updateProtionEzer(Protion) }}></Button>
-                        <Button icon="pi pi-times" label="Delete" onClick={() => { deletProtion(Protion._id) }}></Button></>
-                       }
                         </div>
                     </div>
                 </div>
@@ -136,6 +186,7 @@ const listTemplate = (Protions, layout) => {
     };
 
     const gridItem = (Protion, index) => {
+        console.log(Protion);
         return (
             <div className="col-12 sm:col-6 lg:col-12 xl:col-4 p-2" >
                 <div className="p-4 border-1 surface-border surface-card border-round">
@@ -147,17 +198,32 @@ const listTemplate = (Protions, layout) => {
                         </div>
                         {/* <Tag value={Protion.inventoryStatus} severity={getSeverity(Protion)}></Tag> */}
                     </div>
-                    
+
                     <div className="flex flex-column align-items-center gap-3 py-5">
                         <img className="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" src={`${Protion.image[0]}`} alt={Protion.name[0]} />
-                          <span className="text-2xl font-semibold">{Protion.price}₪</span> 
+                        <span className="text-2xl font-semibold">{Protion.price}₪</span>
                     </div>
                     <div className="flex align-items-center justify-content-between">
-                     
-                       {role!=="Admin"?<Button icon="pi pi-check" className="p-button-rounded" ></Button>:
-                         <><Button icon="pi pi-refresh" label="Update" onClick={() => { updateProtionEzer(Protion) }}></Button>
-                        <Button icon="pi pi-times" label="Delete" onClick={() => { deletProtion(Protion._id) }}></Button></>
-                       }
+
+                    {token && role === "Admin" ?
+                                    <><Button icon="pi pi-refresh" label="Update" onClick={() => { updateProtionEzer(Protion) }}></Button>
+                                        <Button icon="pi pi-times" label="Delete" onClick={() => { deletProtion(Protion) }}></Button></>:<></>}
+                            {token?<>
+                                <div className="card flex justify-content-center">
+                                    <label htmlFor="ingredient1" className="ml-2">Choose me: 👍</label>
+                                    <Checkbox
+                                        // onChange={  e => {setCheckedItems( prev => ({ ...prev, [Protion._id]: e.checked }) ) 
+                                        // console.log(checkedItems);}}
+                                        // checked={!!checkedItems[Protion._id]}
+                                        onChange={e => handleCheck(Protion.category, Protion._id, e.checked)}
+                                        checked={checkedItemsByCategory[Protion.category]?.includes(Protion._id) || false}
+                                        disabled={
+                                            !checkedItemsByCategory[Protion.category]?.includes(Protion._id) &&
+                                            (checkedItemsByCategory[Protion.category]?.length >= 3)
+                                        }
+                                    />
+                                </div></>
+                                 :<></>}
                     </div>
                 </div>
             </div>
@@ -188,7 +254,7 @@ const listTemplate = (Protions, layout) => {
     return (
         <div className="card">{
             ProtionUpdateState ? <Image ProtionUpdateState={ProtionUpdateState} getProtion={getProtions} setProtionUpdateState={setProtionUpdateState} MyUpdatProtion={MyUpdatProtion}></Image> :
-                <><div className="card flex justify-content-center"> {role==="Admin"?<Button icon="pi pi-plus" label="Add Protion" onClick={() => addProtionEzer()} />:<></>}</div> <DataView value={Protions} listTemplate={listTemplate} layout={layout} header={header()} /></>
+                <><div className="card flex justify-content-center"> {role === "Admin" ? <Button icon="pi pi-plus" label="Add Protion" onClick={() => addProtionEzer()} /> : <></>}</div> <DataView value={Protions} listTemplate={listTemplate} layout={layout} header={header()} /></>
         }
         </div>
     )
