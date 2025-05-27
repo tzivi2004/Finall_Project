@@ -118,8 +118,8 @@ const deleteOrder = async (req, res) => {
     res.send(`the Order ${order.user} deleted!`);
 }
 
-const exportOrders = async (req,res)=>{
-    
-}
+// const exportOrders = async (req,res)=>{
+
+// }
 
 module.exports = { createNewOrder, getAllOrders, getOrderById,getOrderByUserName, updateOrder, deleteOrder }

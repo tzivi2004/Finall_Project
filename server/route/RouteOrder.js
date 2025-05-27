@@ -8,7 +8,7 @@ router.post('/', ControllerOrder.createNewOrder);
 router.get('/', ControllerOrder.getAllOrders);
 router.get('/:id', ControllerOrder.getOrderById);
 router.get('/username/:username', ControllerOrder.getOrderByUserName);
-router.get('/export', ControllerOrder.exportOrders);
+// router.get('/export', ControllerOrder.exportOrders);
 
 router.put('/', ControllerOrder.updateOrder);
 router.delete('/:id', ControllerOrder.deleteOrder);
