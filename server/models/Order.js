@@ -53,7 +53,7 @@ const orderSchema = new Schema({
     },
     EventType: {
         type: String,
-        enum: ['Bar Mitzvah', 'Bat Mitzvah', 'Wedding', 'Birthday','Shabat','Brit']
+        enum: ['Bar Mitzvah', 'Bat Mitzvah', 'Wedding', 'Birthday','Shabat','Brit','Other']
     },
     Notes: {
         type: String,

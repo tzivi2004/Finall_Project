@@ -10,6 +10,9 @@ import HomeAdmin from './commponents/HomeAdmin';
 import { useDispatch, useSelector } from 'react-redux';
 import Image from './commponents/image';
 import Order from './commponents/Orders';
+import AddOrder from './commponents/MakAnOrder'
+import 'quill/dist/quill.snow.css'; // סגנון Snow
+import 'quill/dist/quill.bubble.css'; // סגנון Bubble (אם נדרש)
 function App() {
     const { token, role, user } = useSelector((state) => state.token);
 
@@ -24,6 +27,7 @@ function App() {
                 <Route path='/products' element={<ProductsInStock />}></Route>
                 <Route path='/image' element={<Image />}></Route>
                 <Route path='/orders' element={<Order />}></Route>
+                <Route path='/makeOrders' element={<AddOrder />}></Route>
 
 
             </Routes>

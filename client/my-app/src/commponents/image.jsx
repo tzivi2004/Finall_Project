@@ -64,11 +64,13 @@ function Image({
       const idProducts = selectedCities.map((item) => item._id); // Extract the IDs of selected products
       console.log("data", data);
       console.log("autoCompleteSuggestions", autoCompleteSuggestions);
-      console.log("selectedCities", idProducts);
+      console.log("idProducts", idProducts);
+      console.log("selectedCities",selectedCities);
       console.log("value", value);
       const portionData = {
         ...data,
         category: value,
+        ingredients: selectedCities.map((item) => ({ product: item._id })),
         image: images // Attach the image URL to the portion data
       };
 

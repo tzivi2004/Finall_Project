@@ -12,9 +12,14 @@ import { MultiStateCheckbox } from 'primereact/multistatecheckbox';
 import { Checkbox } from "primereact/checkbox";
 import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from "primereact/dialog"
+import AddOrder from './MakAnOrder';
 
 
 export default function Menu() {
+    const [Order, setOrder] = useState([]);
+    const [MyUpdatOrder, SetMyUpdatOrder] = useState([])
+    const [OrderUpdateState, setOrderUpdateState] = useState(false)
+
     const categoryOrder = ['On the table', 'salad', 'first course', 'main course', 'Extras', 'dessert'];
     const [value, setValue] = useState(60);
     const [errorMsg, setErrorMsg] = useState('');
@@ -66,6 +71,15 @@ export default function Menu() {
         setProtionUpdateState(true)
     }
 
+    const addOrderEzer = () => {
+        console.log("fb");
+        
+        SetMyUpdatOrder({})
+        setOrderUpdateState(true)
+        // SetMyUpdatProtion({})
+        // setProtionUpdateState(true)
+    }
+
     useEffect(() => {
         getProtions()
     }, []);
@@ -83,16 +97,16 @@ export default function Menu() {
 
     const listTemplate = (Protions, layout) => {
         const grouped = groupByCategory(Protions); // קיבוץ כל המנות לפי קטגוריה
-        console.log(grouped);
+        console.log(`bg ${grouped}`);
         return (
             <div>
                 {categoryOrder.map(category =>
                     grouped[category] && grouped[category].length > 0 && (
                         <div key={category}>
                             <h3 style={{ marginTop: '2rem', color: "#fba661", backgroundColor: "#61dafb" }}>{category}</h3>
-                            <h5 style={{ marginTop: '2rem', color: "#fba661", backgroundColor: "#61dafb" }}>{`You can choose ${value>=60?"3 ":"2"} Product in this categorya:` }</h5>
+                            <h5 style={{ marginTop: '2rem', color: "#fba661", backgroundColor: "#61dafb" }}>{`You can choose ${value >= 60 ? "3 " : "2"} Order in this categorya:`}</h5>
 
-                            
+
                             <div className="grid grid-nogutter">
                                 {grouped[category].map((Protion, index) => itemTemplate(Protion, layout, index))}
                             </div>
@@ -125,7 +139,7 @@ export default function Menu() {
     const handleCheck = (category, protionId, checked) => {
         setCheckedItemsByCategory(prev => {
             const prevChecked = prev[category] || [];
-const num = value>=60?3:2
+            const num = value >= 60 ? 3 : 2
             if (checked) {
                 if (prevChecked.length >= num) {
                     return prev;
@@ -146,6 +160,7 @@ const num = value>=60?3:2
     const handleValueChange = (e) => {
         if (e.value < 60 && e.value > 40) {
             setValue(e.value)
+            
             setErrorMsg('פחות מ 60 איש המחיר בתוספת של ₪10 למנה');
         }
         else if (e.value <= 40) {
@@ -279,9 +294,13 @@ const num = value>=60?3:2
 
     return (
         <div className="card">{
-            ProtionUpdateState ? <Image ProtionUpdateState={ProtionUpdateState} getProtion={getProtions} setProtionUpdateState={setProtionUpdateState} MyUpdatProtion={MyUpdatProtion}></Image> :
-                <><div className="card flex justify-content-center"> {role === "Admin" ? <Button icon="pi pi-plus" label="Add Protion" onClick={() => addProtionEzer()} /> : <></>}</div> <DataView value={Protions} listTemplate={listTemplate} layout={layout} header={header()} /></>
+            OrderUpdateState ? <AddOrder OrderUpdateState={OrderUpdateState}  checkedItemsByCategory={checkedItemsByCategory} value={value} setOrderUpdateState={setOrderUpdateState} MyUpdatOrder={MyUpdatOrder}></AddOrder> :
+
+                ProtionUpdateState ? <Image ProtionUpdateState={ProtionUpdateState} getProtion={getProtions} setProtionUpdateState={setProtionUpdateState} MyUpdatProtion={MyUpdatProtion}></Image> :
+                    <><div className="card flex justify-content-center"> {role === "Admin" ? <Button icon="pi pi-plus" label="Add Protion" onClick={() => addProtionEzer()} /> : <></>}</div> <DataView value={Protions} listTemplate={listTemplate} layout={layout} header={header()} /> </>
+
         }
+            <div> <Button style={{ left: 'calc(50% - 2rem)' }} icon="pi pi-save" label="Save Your Choos!" onClick={() => addOrderEzer()} /></div>
         </div>
     )
 }

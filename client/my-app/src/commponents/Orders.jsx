@@ -7,13 +7,19 @@ import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import Axios from 'axios';
 import { useSelector } from 'react-redux';
+// import { useDispatch, useSelector } from 'react-redux';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+
 
 export default function Order() {
     const [order, setOrder] = useState([]);
-    const [user, setUser] = useState([]);
+    // const [user, setUser] = useState([]);
     const [expandedRows, setExpandedRows] = useState(null);
-    const { token } = useSelector((state) => state.token)
+    // const { token } = useSelector((state) => state.token)
     const toast = useRef(null);
+    const { token, role, user } = useSelector((state) => state.token);
+
 
     // ,{header:`Bearer ${token}`}
     const getAllOrders = async () => {
@@ -28,8 +34,35 @@ export default function Order() {
             // <Button icon="pi pi-plus" label="Add Product" onClick={() => addProductEzer()} />
         }
     }
+
+    const downloadExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(order); // יצירת גיליון Excel מהנתונים
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders'); // הוספת הגיליון לחוברת העבודה
+
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        saveAs(blob, 'Orders.xlsx'); // שמירת הקובץ
+    };
+
+    const getYorsOrders = async () => {
+        try {
+            console.log("user", user.username);
+
+            const { data } = await Axios.get(`http://localhost:1233/api/Order/username/${user.username}`)
+            setOrder(data)
+            console.log(data);
+        }
+        catch (ex) {
+            console.log(ex);
+
+            // <Button icon="pi pi-plus" label="Add Product" onClick={() => addProductEzer()} />
+        }
+    }
+
     useEffect(() => {
-        getAllOrders()
+        { role === "Admin" ? getAllOrders() : role === "User" ? getYorsOrders() : <></> }
+        // getAllOrders()
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const onRowExpand = (event) => {
@@ -81,7 +114,7 @@ export default function Order() {
     };
 
     const statusBodyTemplate = (rowData) => {
-        return <Tag  value={rowData.status} severity={getOrdereverity(rowData)}></Tag>;
+        return <Tag value={rowData.status} severity={getOrdereverity(rowData)}></Tag>;
     };
 
     const getOrdereverity = (product) => {
@@ -147,6 +180,9 @@ export default function Order() {
 
     return (
         <div className="card">
+            <div>
+                        <Button icon="pi pi-upload" label="Uplode to Excel " onClick={downloadExcel}></Button>
+</div>
             <Toast ref={toast} />
             <DataTable value={order} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)}
                 onRowExpand={onRowExpand} onRowCollapse={onRowCollapse} rowExpansionTemplate={rowExpansionTemplate}
@@ -171,6 +207,9 @@ export default function Order() {
                 <Column header="Update" headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column>
 
             </DataTable>
-        </div>
+
+
+
+        </div >
     );
 }

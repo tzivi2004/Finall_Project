@@ -70,6 +70,22 @@ const getOrderById = async (req, res) => {
     }
     res.json(order);
 }
+
+const getOrderByUserName = async (req, res) => {
+    const { username } = req.params;
+    console.log("username", username);
+    const user = await User.findOne({ username }).lean();
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+    
+    const order = await Order.find({user:user._id}).populate('user').populate('doses.dose', {name:1,quantity:1})
+    if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+    }
+    res.json(order);
+}
+
 const updateOrder = async (req, res) => {
     const { id, user, doses, NumberOfDiners, status, HallAddress, HallName, EventDate, StartEventTime, EventType, Notes, PaymentStatus, PaymentMethod } = req.body;
     const order = await Order.findById(id).exec();
@@ -102,4 +118,8 @@ const deleteOrder = async (req, res) => {
     res.send(`the Order ${order.user} deleted!`);
 }
 
-module.exports = { createNewOrder, getAllOrders, getOrderById, updateOrder, deleteOrder }
+const exportOrders = async (req,res)=>{
+    
+}
+
+module.exports = { createNewOrder, getAllOrders, getOrderById,getOrderByUserName, updateOrder, deleteOrder }

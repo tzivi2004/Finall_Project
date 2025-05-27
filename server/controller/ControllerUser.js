@@ -37,6 +37,18 @@ const getUserById = async (req, res) => {
     res.json(UserById)
 }
 
+
+const getUserByUserName = async (req, res) => {
+    const { userName } = req.params
+    console.log("userName", userName);
+    
+    const UserByuserName = await User.findOne({username:userName}).lean()
+    if (!UserByuserName) {
+        return res.status(404).json({ message: "This User Not Found!" })
+    }
+    res.json(UserByuserName)
+}
+
 const updateUser = async (req, res) => {
     const { id,name,username,password,email,phone,roles } = req.body
     const updateUser = await User.findById(id).exec()
@@ -63,5 +75,5 @@ const deletUser = async (req,res)=>{
     res.send(`The User ${deletUser.name} deleted!!`)
 }
 
-module.exports = { createNewUser, getAllUsers, getUserById ,updateUser,deletUser}
+module.exports = { createNewUser, getAllUsers, getUserById ,getUserByUserName,updateUser,deletUser}
 

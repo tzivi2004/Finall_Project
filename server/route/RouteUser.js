@@ -7,8 +7,11 @@ const { verify } = require("jsonwebtoken")
 
 
 router.post("/", verifyJWT, controllerUser.createNewUser)
+router.get("/:userName", controllerUser.getUserByUserName)
 router.get("/", verifyJWT, controllerUser.getAllUsers)
-router.get("/:id", verifyJWT, controllerUser.getUserById)
+// router.get("/:id", verifyJWT, controllerUser.getUserById)
+
+
 router.put("/", verifyJWT, controllerUser.updateUser)
 router.delete("/:id", verifyJWT, controllerUser.deletUser)
 
