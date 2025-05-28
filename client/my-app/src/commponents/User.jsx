@@ -112,7 +112,7 @@ const itemTemplate = (users) => {
                         </div>
                     </div>
                     <div className="flex flex-row lg:flex-column align-items-center lg:align-items-end gap-4 lg:gap-2">
-                        <Button icon="pi pi-user-minus" label="Delet" onClick={()=>{deleteUser(users._id)}} ></Button>
+                        {role==="Admin"?<Button icon="pi pi-user-minus" label="Delet" onClick={()=>{deleteUser(users._id)}} ></Button>:<></>}
                         <Button icon="pi pi-user-edit" label="update"  onClick={()=>{ updateUserEzer(users)}}></Button>
                     </div>
                 </div>
