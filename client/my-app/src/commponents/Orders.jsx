@@ -24,7 +24,12 @@ export default function Order() {
     // ,{header:`Bearer ${token}`}
     const getAllOrders = async () => {
         try {
-            const { data } = await Axios.get("http://localhost:1233/api/Order")
+            const { data } = await Axios.get("http://localhost:1233/api/Order",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
             setOrder(data)
             console.log(data);
         }
@@ -36,8 +41,8 @@ export default function Order() {
     }
 
     const downloadExcel = () => {
-        const worksheet = XLSX.utils.json_to_sheet(order); // יצירת גיליון Excel מהנתונים
-        const workbook = XLSX.utils.book_new();
+    const flatOrders = flattenOrders(order); // המרה למבנה שטוח
+    const worksheet = XLSX.utils.json_to_sheet(flatOrders);        const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders'); // הוספת הגיליון לחוברת העבודה
 
         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
@@ -45,11 +50,59 @@ export default function Order() {
         saveAs(blob, 'Orders.xlsx'); // שמירת הקובץ
     };
 
+    const flattenOrders = (orders) => {
+    const flat = [];
+    orders.forEach(order => {
+        if (order.doses && order.doses.length > 0) {
+            order.doses.forEach(dose => {
+                flat.push({
+                    OrderID: order._id,
+                    User: order.user?.name || "",
+                    EventType: order.EventType,
+                    HallName: order.HallName,
+                    HallAddress: order.HallAddress,
+                    EventDate: new Date(order.EventDate).toLocaleDateString('he-IL'),
+                    StartEventTime: order.StartEventTime,
+                    Notes: order.Notes,
+                    NumberOfDiners: order.NumberOfDiners,
+                    TotalPrice: order.totalPrice,
+                    Status: order.status,
+                    DoseName: dose.dose?.name || "",
+                    DoseQuantity: dose.quantity
+                });
+            });
+        } else {
+            // אם אין מנות, עדיין נוסיף שורה להזמנה
+            flat.push({
+                OrderID: order._id,
+                User: order.user?.name || "",
+                EventType: order.EventType,
+                HallName: order.HallName,
+                HallAddress: order.HallAddress,
+                EventDate: new Date(order.EventDate).toLocaleDateString('he-IL'),
+                StartEventTime: order.StartEventTime,
+                Notes: order.Notes,
+                NumberOfDiners: order.NumberOfDiners,
+                TotalPrice: order.totalPrice,
+                Status: order.status,
+                DoseName: "",
+                DoseQuantity: ""
+            });
+        }
+    });
+    return flat;
+};
+
     const getYorsOrders = async () => {
         try {
             console.log("user", user.username);
 
-            const { data } = await Axios.get(`http://localhost:1233/api/Order/username/${user.username}`)
+            const { data } = await Axios.get(`http://localhost:1233/api/Order/username/${user.username}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
             setOrder(data)
             console.log(data);
         }

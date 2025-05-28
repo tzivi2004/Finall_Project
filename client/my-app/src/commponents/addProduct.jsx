@@ -5,12 +5,12 @@ import { Button } from 'primereact/button';
 import { classNames } from 'primereact/utils';
 import Axios from "axios"
 import { Dialog } from "primereact/dialog"
-
+import { useSelector } from 'react-redux';
 const AddProduct = ({ visible, setProductUpdateState, ProductUpdateState, setProduct, Product, SetMyUpdatProduct, MyUpdatProduct, getProduct }) => {
 
     const [formData, setFormData] = useState({});
 
-
+    const { token } = useSelector((state) => state.token);
 
     const defaultValues = {
         name: MyUpdatProduct.name || "",
@@ -30,7 +30,12 @@ const AddProduct = ({ visible, setProductUpdateState, ProductUpdateState, setPro
     const addProduct = async (datas) => {
 
         try {
-            const { data } = await Axios.post("http://localhost:1233/api/Product", datas)
+            const { data } = await Axios.post("http://localhost:1233/api/Product", datas,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
 
             // setPost([...Post, res.data])בגלל ה sort!!!
             console.log(data)
@@ -49,7 +54,12 @@ const AddProduct = ({ visible, setProductUpdateState, ProductUpdateState, setPro
         datas._id = MyUpdatProduct._id;
         console.log(datas);
         try {
-            const { data } = await Axios.put("http://localhost:1233/api/Product", datas)
+            const { data } = await Axios.put("http://localhost:1233/api/Product", datas,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
             getProduct()
             setProductUpdateState(false)
             console.log(setProductUpdateState);

@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 
-const verifyJWT = (req, res, next) => {
+const verifyJWTAdmin = (req, res, next) => {
     const authHeader = req.headers.authorization || req.headers.Authorization
     if (!authHeader?.startsWith('Bearer')) {
         return res.status(401).json({ message: "Unauthorized" })
@@ -9,8 +9,12 @@ const verifyJWT = (req, res, next) => {
     jwt.verify(
         token,
         process.env.ACCESS_TOKEN_SECRET,
-        (err, decoded) => {
-            if (err)
+        (err, decoded ) => {
+            console.log("decoded", decoded);
+            console.log("err", err);
+            console.log("decoded.role", decoded.role);
+            
+            if (err|| decoded.roles !== 'Admin')
                 return res.status(403).json({ message: "Forbidden" })
             req.user = decoded
             next()
@@ -19,4 +23,4 @@ const verifyJWT = (req, res, next) => {
 
 }
 
-module.exports = verifyJWT
+module.exports = verifyJWTAdmin

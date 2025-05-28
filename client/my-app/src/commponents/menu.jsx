@@ -34,6 +34,10 @@ export default function Menu() {
     // const [checkedItems, setCheckedItems] = useState({});
     const [checkedItemsByCategory, setCheckedItemsByCategory] = useState({});
 
+    const isAllCategoriesChecked = categoryOrder.every(
+        category => checkedItemsByCategory[category] && checkedItemsByCategory[category].length > 0
+    );
+
     const getProtions = async () => {
         try {
             console.log("data");
@@ -51,9 +55,15 @@ export default function Menu() {
             console.log(JSON.stringify(Protion.image[0]));
             await Axios.delete('http://localhost:1233/api/Portion/delete-image', {
                 data: { url: Protion.image[0] },
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+
             });
-            const { data } = await Axios.delete(`http://localhost:1233/api/Portion/${Protion._id}`)
+            const { data } = await Axios.delete(`http://localhost:1233/api/Portion/${Protion._id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
             getProtions()
         }
         catch (ex) {
@@ -73,7 +83,7 @@ export default function Menu() {
 
     const addOrderEzer = () => {
         console.log("fb");
-        
+
         SetMyUpdatOrder({})
         setOrderUpdateState(true)
         // SetMyUpdatProtion({})
@@ -104,7 +114,7 @@ export default function Menu() {
                     grouped[category] && grouped[category].length > 0 && (
                         <div key={category}>
                             <h3 style={{ marginTop: '2rem', color: "#fba661", backgroundColor: "#61dafb" }}>{category}</h3>
-                            <h5 style={{ marginTop: '2rem', color: "#fba661", backgroundColor: "#61dafb" }}>{`You can choose ${value >= 60 ? "3 " : "2"} Order in this categorya:`}</h5>
+                            {token?<h5 style={{ marginTop: '2rem', color: "#fba661", backgroundColor: "#61dafb" }}>{`You can choose ${value >= 60 ? "3 " : "2"} Order in this categorya:`}</h5>:<></>}
 
 
                             <div className="grid grid-nogutter">
@@ -160,7 +170,7 @@ export default function Menu() {
     const handleValueChange = (e) => {
         if (e.value < 60 && e.value > 40) {
             setValue(e.value)
-            
+
             setErrorMsg('פחות מ 60 איש המחיר בתוספת של ₪10 למנה');
         }
         else if (e.value <= 40) {
@@ -294,13 +304,17 @@ export default function Menu() {
 
     return (
         <div className="card">{
-            OrderUpdateState ? <AddOrder OrderUpdateState={OrderUpdateState}  checkedItemsByCategory={checkedItemsByCategory} value={value} setOrderUpdateState={setOrderUpdateState} MyUpdatOrder={MyUpdatOrder}></AddOrder> :
+            OrderUpdateState ? <AddOrder OrderUpdateState={OrderUpdateState} checkedItemsByCategory={checkedItemsByCategory} value={value} setOrderUpdateState={setOrderUpdateState} MyUpdatOrder={MyUpdatOrder}></AddOrder> :
 
                 ProtionUpdateState ? <Image ProtionUpdateState={ProtionUpdateState} getProtion={getProtions} setProtionUpdateState={setProtionUpdateState} MyUpdatProtion={MyUpdatProtion}></Image> :
                     <><div className="card flex justify-content-center"> {role === "Admin" ? <Button icon="pi pi-plus" label="Add Protion" onClick={() => addProtionEzer()} /> : <></>}</div> <DataView value={Protions} listTemplate={listTemplate} layout={layout} header={header()} /> </>
 
         }
-            <div> <Button style={{ left: 'calc(50% - 2rem)' }} icon="pi pi-save" label="Save Your Choos!" onClick={() => addOrderEzer()} /></div>
+            {token ? <div> <Button style={{ left: 'calc(50% - 2rem)' }} icon="pi pi-save" label="Save Your Choos!" onClick={()=>{ if (isAllCategoriesChecked) {
+                addOrderEzer()
+                } else {
+                    alert("חובה לבחור מכול קטגוריה לפחות מנה אחת!!!")}
+                }} /></div> : <></>}
         </div>
     )
 }

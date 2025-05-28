@@ -35,13 +35,20 @@ export default function HomeAdmin() {
                 navigate('./menu')
             }
         },
-        {
+        token?{
             label: 'Order',
             icon: 'pi pi-shopping-cart',
             command: () => {
                 navigate('./orders')
             }
-        },
+        }:{},
+          token?{
+            label: 'User',
+            icon: 'pi pi-shopping-cart',
+            command: () => {
+                navigate('./user')
+            }
+        }:{},
         role==="Admin"?
         {
             label: 'ProductsInStock',

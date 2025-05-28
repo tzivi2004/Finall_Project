@@ -8,6 +8,7 @@ import Axios from "axios"
 import { Dialog } from "primereact/dialog"
 import { AutoComplete } from 'primereact/autocomplete';
 import { Editor } from "primereact/editor";
+import { useSelector } from 'react-redux';
 
 const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState, OrderUpdateState, setOrder, Order, SetMyUpdatOrder, MyUpdatOrder, getOrder }) => {
 
@@ -18,6 +19,7 @@ const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState,
     const [value2, setValue2] = useState('');
 
     const [text, setText] = useState('');
+    const { token } = useSelector((state) => state.token);
 
 
     const defaultValues = {
@@ -62,7 +64,12 @@ const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState,
         } try {
             console.log(datas)
             console.log(datas.userName);
-            const res = await Axios.get(`http://localhost:1233/api/User/${datas.userName}`)
+            const res = await Axios.get(`http://localhost:1233/api/User/${datas.userName}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
             const order = {
                 user: res.data._id,
                 doses: doses,
@@ -80,7 +87,12 @@ const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState,
 
 
             setOrderUpdateState(false)
-            const { data } = await Axios.post("http://localhost:1233/api/Order", order)
+            const { data } = await Axios.post("http://localhost:1233/api/Order", order,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
 
             // setPost([...Post, res.data])בגלל ה sort!!!
             console.log(data)
@@ -225,7 +237,7 @@ const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState,
                             <Editor value={text} onTextChange={(e) => setText(e.textValue)} style={{ height: '320px' }} />
                             <div className="field"></div>
                             <div className="field">
-                                <label htmlFor="price" >{` The total price is : ${defaultValues.totalPrice >= 60 ? defaultValues.totalPrice * 64 : defaultValues.totalPrice * 74}₪`}</label>
+                                <label htmlFor="price" >{` The total price is : ${value >= 60 ? value * 64 : value * 74}₪`}</label>
                                 {getFormErrorMessage('body')}
                             </div>
                             <Button type="submit" label={"Save!!!"} className="mt-2" />

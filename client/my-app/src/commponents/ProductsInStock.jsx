@@ -4,19 +4,27 @@ import { DataScroller } from 'primereact/datascroller';
 import { Rating } from 'primereact/rating';
 import { Tag } from 'primereact/tag';
 import Axios from "axios"
-import addProduct from './addProduct';
 import AddProduct from './addProduct';
+import { useDispatch, useSelector } from 'react-redux';
+
 // import { deletProduct } from '../../../../server/controller/ControllerProduct';
 
 export default function ProductsInStock() {
     const [Product, setProduct] = useState([]);
     const [MyUpdatProduct, SetMyUpdatProduct] = useState([])
     const [ProductUpdateState, setProductUpdateState] = useState(false)
+    const { token, role, user } = useSelector((state) => state.token);
+
 
 
     const getProduct = async () => {
         try {
-            const { data } = await Axios.get("http://localhost:1233/api/Product")
+            const { data } = await Axios.get("http://localhost:1233/api/Product",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
             setProduct(data)
         }
         catch (ex) {
@@ -27,8 +35,13 @@ export default function ProductsInStock() {
     }
 
     const deletProduct = async (id) => {
-        try { 
-            const { data } = await Axios.delete(`http://localhost:1233/api/Product/${id}`)
+        try {
+            const { data } = await Axios.delete(`http://localhost:1233/api/Product/${id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
             getProduct()
         }
         catch (ex) {
@@ -36,7 +49,7 @@ export default function ProductsInStock() {
         }
     }
 
-        const updateProductEzer = (Product) => {
+    const updateProductEzer = (Product) => {
         SetMyUpdatProduct(Product)
         setProductUpdateState(true)
     }
@@ -45,7 +58,7 @@ export default function ProductsInStock() {
         SetMyUpdatProduct({})
         setProductUpdateState(true)
     }
-    
+
     useEffect(() => {
         getProduct()
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -83,8 +96,8 @@ export default function ProductsInStock() {
                         </div>
                         <div className="flex flex-row lg:flex-column align-items-center lg:align-items-end gap-4 lg:gap-2">
                             <span className="text-2xl font-semibold">${data.price}</span>
-                            <Button icon="pi pi-refresh" label="Update" onClick={() =>{updateProductEzer(data)}}></Button>
-                            <Button icon="pi pi-times" label="Delete" onClick={() =>{deletProduct(data._id)}} disabled={data.inventoryStatus === 'OUTOFSTOCK'}></Button>
+                            <Button icon="pi pi-refresh" label="Update" onClick={() => { updateProductEzer(data) }}></Button>
+                            <Button icon="pi pi-times" label="Delete" onClick={() => { deletProduct(data._id) }} disabled={data.inventoryStatus === 'OUTOFSTOCK'}></Button>
                             <Tag value={` The Count Of This Product Is: ${data.QuantityInStock}`} severity={getSeverity(data)}></Tag>
                         </div>
                     </div>

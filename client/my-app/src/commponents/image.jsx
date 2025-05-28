@@ -10,6 +10,8 @@ import { FileUpload } from 'primereact/fileupload';
 import { AutoComplete } from 'primereact/autocomplete';
 import { ListBox } from 'primereact/listbox';
 import { MultiSelect } from 'primereact/multiselect';
+import { useDispatch, useSelector } from 'react-redux';
+
 
 
 
@@ -22,6 +24,8 @@ function Image({
 }) {
 
   const [selectedCities, setSelectedCities] = useState([]);
+
+  const { token, role, user } = useSelector((state) => state.token);
 
   const toast = useRef(null);
   const [file, setFile] = useState(null);
@@ -42,7 +46,12 @@ function Image({
   const getProduct = async () => {
     try {
       console.log("data");
-      const { data } = await Axios.get("http://localhost:1233/api/Product")
+      const { data } = await Axios.get("http://localhost:1233/api/Product",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
       console.log(data);
       setProducts(data)
       setProductGroups(groupProductsByCategory(data)); // Set initial items to all products grouped by category
@@ -87,7 +96,12 @@ function Image({
 
   const addProtion = async (portionData) => {
     try {
-      const response = await Axios.post("http://localhost:1233/api/Portion", portionData);
+      const response = await Axios.post("http://localhost:1233/api/Portion", portionData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
       toast.current.show({ severity: 'success', summary: 'Success', detail: 'Portion added successfully.' });
       setProtionUpdateState(false)
       getProtion();
@@ -102,7 +116,13 @@ function Image({
   const updateProtion = async (portionData) => {
     portionData.id = MyUpdatProtion._id; // Ensure to include ID for updating
     try {
-      const response = await Axios.put("http://localhost:1233/api/Portion", portionData);
+      const response = await Axios.put("http://localhost:1233/api/Portion", portionData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+      );
       getProtion();
       setProtionUpdateState(false);
       toast.current.show({ severity: 'success', summary: 'Success', detail: 'Portion updated successfully.' });
@@ -123,7 +143,7 @@ function Image({
     try {
       const res = await Axios.post('http://localhost:1233/api/Portion/upload-image', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'multipart/form-data',Authorization: `Bearer ${token}`
         },
       });
 
