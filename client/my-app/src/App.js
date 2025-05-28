@@ -11,7 +11,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import Image from './commponents/image';
 import Order from './commponents/Orders';
 import AddOrder from './commponents/MakAnOrder'
-import User from './commponents/Users';
+// import User from './commponents/Users';
+import Users from './commponents/User';
+
 import 'quill/dist/quill.snow.css'; // סגנון Snow
 import 'quill/dist/quill.bubble.css'; // סגנון Bubble (אם נדרש)
 function App() {
@@ -29,7 +31,7 @@ function App() {
                 <Route path='/image' element={<Image />}></Route>
                 <Route path='/orders' element={<Order />}></Route>
                 <Route path='/makeOrders' element={<AddOrder />}></Route>
-                <Route path='/user' element={<User />}></Route>
+                <Route path='/user' element={<Users />}></Route>
 
 
             </Routes>

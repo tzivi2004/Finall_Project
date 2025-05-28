@@ -7,9 +7,9 @@ const controllerUser = require("../controller/ControllerUser")
 
 
 // router.post("/", verifyJWTAdmin, controllerUser.createNewUser)למה צריך אות זה? כי יש לנו את הregister בauth
-router.get("/:userName",verifyJWT, controllerUser.getUserByUserName)
+// router.get("/:userName",verifyJWT, controllerUser.getUserByUserName)
 router.get("/", verifyJWTAdmin, controllerUser.getAllUsers)
-// router.get("/:id", verifyJWT, controllerUser.getUserById)
+router.get("/:id", verifyJWT, controllerUser.getUserById)
 router.put("/", verifyJWT, controllerUser.updateUser)
 router.delete("/:id", verifyJWTAdmin, controllerUser.deletUser)
 

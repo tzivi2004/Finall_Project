@@ -44,7 +44,7 @@ export default function HomeAdmin() {
         }:{},
           token?{
             label: 'User',
-            icon: 'pi pi-shopping-cart',
+            icon: 'pi pi-user',
             command: () => {
                 navigate('./user')
             }
