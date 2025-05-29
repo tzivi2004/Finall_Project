@@ -55,6 +55,21 @@ console.log(filePath,filename);
     res.json({ success: true, message: 'File deleted' });
   });
 });
+
+app.get('/api/images', (req, res) => {
+    const directoryPath = path.join(__dirname, 'uploads');
+    fs.readdir(directoryPath, (err, files) => {
+        if (err) {
+            return res.status(500).json({ error: 'Unable to scan directory' });
+        }
+        // החזר רק קבצים עם סיומת של תמונה
+        const imageFiles = files.filter(file =>
+            /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(file)
+        );
+        res.json(imageFiles);
+    });
+});
+
 app.use('/uploads', express.static('uploads'));
 
 app.use("/api/User",require("./route/RouteUser")) 

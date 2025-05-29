@@ -68,6 +68,8 @@ function Image({ visible, setProtionUpdateState, ProtionUpdateState, MyUpdatProt
 
   const onSubmit = async (data) => {
     try {
+      console.log("Submitted data:", data);
+      
       const portionData = {
         ...data,
         category: value,
@@ -75,6 +77,8 @@ function Image({ visible, setProtionUpdateState, ProtionUpdateState, MyUpdatProt
         image: images
       };
       if (MyUpdatProtion.name) {
+        console.log("fdgdfg", MyUpdatProtion);
+        
         await updateProtion(portionData);
       } else {
         await addProtion(portionData);

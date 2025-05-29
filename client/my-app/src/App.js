@@ -30,8 +30,7 @@ function App() {
                 <Route path='/orders' element={<Order />}></Route>
                 <Route path='/makeOrders' element={<AddOrder />}></Route>
                 <Route path='/user' element={<Users />}></Route>
-{/* <Route path='/gallery' element={<AdvancedDemo />}></Route> */}
-
+                <Route path='/gallery' element={<AdvancedDemo />}></Route>
             </Routes>
         </>
     )

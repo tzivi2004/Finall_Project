@@ -34,6 +34,12 @@ export default function HomeAdmin() {
             command: () => {
                 navigate('./menu')
             }
+        },{
+            label: 'gallery',
+            icon: 'pi pi-images',
+            command: () => {
+                navigate('./gallery')
+            }
         },
         token?{
             label: 'Order',
