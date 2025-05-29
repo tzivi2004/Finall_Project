@@ -87,8 +87,25 @@ const getOrderByUserName = async (req, res) => {
 }
 
 const updateOrder = async (req, res) => {
-    const { id, user, doses, NumberOfDiners, status, HallAddress, HallName, EventDate, StartEventTime, EventType, Notes, PaymentStatus, PaymentMethod } = req.body;
-    const order = await Order.findById(id).exec();
+    const { _id, user, doses, NumberOfDiners, status, HallAddress, HallName, EventDate, StartEventTime, EventType, Notes, PaymentStatus, PaymentMethod } = req.body;
+console.log("doses", doses);
+console.log("user", user);
+console.log("NumberOfDiners", NumberOfDiners);
+console.log("status", status);
+console.log("HallAddress", HallAddress);
+console.log("HallName", HallName);
+console.log("EventDate", EventDate);
+console.log("StartEventTime", StartEventTime);
+console.log("EventType", EventType);
+console.log("Notes", Notes);
+console.log("PaymentStatus", PaymentStatus);
+
+
+
+
+
+
+    const order = await Order.findById(_id).exec();
     if (!order) {
         return res.status(404).json({ message: "Order not found" });
     }

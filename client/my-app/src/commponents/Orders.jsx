@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 // import { useDispatch, useSelector } from 'react-redux';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import AddOrder from './MakAnOrder';
 
 
 export default function Order() {
@@ -19,7 +20,8 @@ export default function Order() {
     // const { token } = useSelector((state) => state.token)
     const toast = useRef(null);
     const { token, role, user } = useSelector((state) => state.token);
-
+    const [OrderUpdateState, setOrderUpdateState] = useState(false)
+    const [currentOrder, setCurrentOrder] = useState(null);
 
     // ,{header:`Bearer ${token}`}
     const getAllOrders = async () => {
@@ -41,8 +43,8 @@ export default function Order() {
     }
 
     const downloadExcel = () => {
-    const flatOrders = flattenOrders(order); // המרה למבנה שטוח
-    const worksheet = XLSX.utils.json_to_sheet(flatOrders);        const workbook = XLSX.utils.book_new();
+        const flatOrders = flattenOrders(order); // המרה למבנה שטוח
+        const worksheet = XLSX.utils.json_to_sheet(flatOrders); const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders'); // הוספת הגיליון לחוברת העבודה
 
         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
@@ -51,10 +53,28 @@ export default function Order() {
     };
 
     const flattenOrders = (orders) => {
-    const flat = [];
-    orders.forEach(order => {
-        if (order.doses && order.doses.length > 0) {
-            order.doses.forEach(dose => {
+        const flat = [];
+        orders.forEach(order => {
+            if (order.doses && order.doses.length > 0) {
+                order.doses.forEach(dose => {
+                    flat.push({
+                        OrderID: order._id,
+                        User: order.user?.name || "",
+                        EventType: order.EventType,
+                        HallName: order.HallName,
+                        HallAddress: order.HallAddress,
+                        EventDate: new Date(order.EventDate).toLocaleDateString('he-IL'),
+                        StartEventTime: order.StartEventTime,
+                        Notes: order.Notes,
+                        NumberOfDiners: order.NumberOfDiners,
+                        TotalPrice: order.totalPrice,
+                        Status: order.status,
+                        DoseName: dose.dose?.name || "",
+                        DoseQuantity: dose.quantity
+                    });
+                });
+            } else {
+                // אם אין מנות, עדיין נוסיף שורה להזמנה
                 flat.push({
                     OrderID: order._id,
                     User: order.user?.name || "",
@@ -67,31 +87,13 @@ export default function Order() {
                     NumberOfDiners: order.NumberOfDiners,
                     TotalPrice: order.totalPrice,
                     Status: order.status,
-                    DoseName: dose.dose?.name || "",
-                    DoseQuantity: dose.quantity
+                    DoseName: "",
+                    DoseQuantity: ""
                 });
-            });
-        } else {
-            // אם אין מנות, עדיין נוסיף שורה להזמנה
-            flat.push({
-                OrderID: order._id,
-                User: order.user?.name || "",
-                EventType: order.EventType,
-                HallName: order.HallName,
-                HallAddress: order.HallAddress,
-                EventDate: new Date(order.EventDate).toLocaleDateString('he-IL'),
-                StartEventTime: order.StartEventTime,
-                Notes: order.Notes,
-                NumberOfDiners: order.NumberOfDiners,
-                TotalPrice: order.totalPrice,
-                Status: order.status,
-                DoseName: "",
-                DoseQuantity: ""
-            });
-        }
-    });
-    return flat;
-};
+            }
+        });
+        return flat;
+    };
 
     const getYorsOrders = async () => {
         try {
@@ -150,8 +152,19 @@ export default function Order() {
         return <Tag value={rowData.status.toLowerCase()} severity={getOrderSeverity(rowData)}></Tag>;
     };
 
-    const searchBodyTemplate = () => {
-        return <Button icon="pi pi-refresh" />;
+
+    const updateOrder = (rowData) => {
+        console.log("update order", rowData);
+        setOrderUpdateState(true);
+        console.log("update order", rowData);
+        console.log("order.doses", rowData.doses);
+        setCurrentOrder(rowData);
+
+        // Navigate to the update order page with the order ID
+
+    }
+    const searchBodyTemplate = (rowData) => {
+        return <Button icon="pi pi-refresh" onClick={() => { updateOrder(rowData) }} />;
     };
 
     // const imageBodyTemplate = (rowData) => {
@@ -232,37 +245,37 @@ export default function Order() {
     );
 
     return (
-        <div className="card">
-            <div>
-                        <Button icon="pi pi-upload" label="Uplode to Excel " onClick={downloadExcel}></Button>
-</div>
-            <Toast ref={toast} />
-            <DataTable value={order} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)}
-                onRowExpand={onRowExpand} onRowCollapse={onRowCollapse} rowExpansionTemplate={rowExpansionTemplate}
-                dataKey="_id" header={header} tableStyle={{ minWidth: '60rem' }}>
-                <Column expander={allowExpansion} style={{ width: '5rem' }} />
-                <Column field="user.name" header="User" sortable />
-                {/* <Column header="Image" body={imageBodyTemplate} /> */}
-                <Column field="totalPrice" header="Total Price" sortable body={priceBodyTemplate} />
-                <Column field="StartEventTime" header="Start Event Time" sortable />
-                {/* <Column field="rating" header="Reviews" sortable body={ratingBodyTemplate} /> */}
-                {/* <Column field="date" header="Date" sortable></Column> */}
-                <Column field="EventType" header="Event Type" sortable />
-                <Column field="HallName" header="Hall Name" sortable />
-                <Column field="HallAddress" header="Hall Address" sortable />
-                <Column field="EventDate" header="Event Date" sortable body={rowData => new Date(rowData.EventDate).toLocaleDateString('he-IL')} />
+        <div className="card">{OrderUpdateState ? <AddOrder OrderUpdateState={OrderUpdateState} checkedItemsByCategory={currentOrder.doses} value={currentOrder.NumberOfDiners} setOrderUpdateState={setOrderUpdateState} MyUpdatOrder={currentOrder} getAllOrders={getAllOrders}></AddOrder> :
+            <><div>
+                <Button icon="pi pi-upload" label="Uplode to Excel " onClick={downloadExcel}></Button>
+            </div>
+                <Toast ref={toast} />
+                <DataTable value={order} expandedRows={expandedRows} onRowToggle={(e) => setExpandedRows(e.data)}
+                    onRowExpand={onRowExpand} onRowCollapse={onRowCollapse} rowExpansionTemplate={rowExpansionTemplate}
+                    dataKey="_id" header={header} tableStyle={{ minWidth: '60rem' }}>
+                    <Column expander={allowExpansion} style={{ width: '5rem' }} />
+                    <Column field="user.name" header="User" sortable />
+                    {/* <Column header="Image" body={imageBodyTemplate} /> */}
+                    <Column field="totalPrice" header="Total Price" sortable body={priceBodyTemplate} />
+                    <Column field="StartEventTime" header="Start Event Time" sortable />
+                    {/* <Column field="rating" header="Reviews" sortable body={ratingBodyTemplate} /> */}
+                    {/* <Column field="date" header="Date" sortable></Column> */}
+                    <Column field="EventType" header="Event Type" sortable />
+                    <Column field="HallName" header="Hall Name" sortable />
+                    <Column field="HallAddress" header="Hall Address" sortable />
+                    <Column field="EventDate" header="Event Date" sortable body={rowData => new Date(rowData.EventDate).toLocaleDateString('he-IL')} />
 
-                <Column field="Notes" header="Notes" sortable />
-                <Column field="NumberOfDiners" header="Number of Diners" sortable />
-                {/* <Column field="StartEventTime" header="Start Event Time" sortable /> */}
-                {/* <Column field="amount" header="Amount" body={amountBodyTemplate} sortable /> */}
-                <Column field="status" header="Status" sortable body={statusBodyTemplate} />
-                <Column header="Update" headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column>
+                    <Column field="Notes" header="Notes" sortable />
+                    <Column field="NumberOfDiners" header="Number of Diners" sortable />
+                    {/* <Column field="StartEventTime" header="Start Event Time" sortable /> */}
+                    {/* <Column field="amount" header="Amount" body={amountBodyTemplate} sortable /> */}
+                    <Column field="status" header="Status" sortable body={statusBodyTemplate} />
+                   { role==="Admin"?<Column header="Update" headerStyle={{ width: '4rem' }} body={searchBodyTemplate}></Column>:<></>}
 
-            </DataTable>
+                </DataTable>
 
-
-
+            </>
+        }
         </div >
     );
 }

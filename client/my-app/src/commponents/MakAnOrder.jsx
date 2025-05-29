@@ -10,20 +10,22 @@ import { AutoComplete } from 'primereact/autocomplete';
 import { Editor } from "primereact/editor";
 import { useSelector } from 'react-redux';
 
-const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState, OrderUpdateState, setOrder, Order, SetMyUpdatOrder, MyUpdatOrder, getOrder }) => {
+const AddOrder = ({ visible, getAllOrders, value, checkedItemsByCategory, setOrderUpdateState, OrderUpdateState, setOrder, Order, SetMyUpdatOrder, MyUpdatOrder, getOrder }) => {
 
     const [formData, setFormData] = useState({});
 
     const [autoCompleteSuggestions, setAutoCompleteSuggestions] = useState([]);
-    const [value1, setValue1] = useState('');
-    const [value2, setValue2] = useState('');
+    const [value1, setValue1] = useState(MyUpdatOrder?.EventType || '');
+    const [value2, setValue2] = useState(MyUpdatOrder?.PaymentMethod || '');
+    const [value3, setValue3] = useState(MyUpdatOrder?.status || '');
+    
 
-    const [text, setText] = useState('');
-    const { token } = useSelector((state) => state.token);
+    const [text, setText] = useState(MyUpdatOrder?.Notes || '');
+    const { role,token } = useSelector((state) => state.token);
 
 
     const defaultValues = {
-        userName: MyUpdatOrder?.userName || '',
+        userName: MyUpdatOrder?.user?.username || '',
         doses: MyUpdatOrder?.doses || [],
         NumberOfDiners: value,
         totalPrice: value >= 60 ? value * 64 : value * 74,
@@ -41,6 +43,9 @@ const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState,
 
     useEffect(() => {
         console.log(checkedItemsByCategory);
+        console.log("value", value);
+        console.log("MyUpdatOrder", MyUpdatOrder);
+console.log(role==="Admin"?"Admin":"User");
 
 
     }, []);
@@ -48,8 +53,11 @@ const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState,
     const { control, formState: { errors }, handleSubmit, reset } = useForm({ defaultValues });
 
     const addOrder = async (datas) => {
+        console.log("|iiiiii'", datas);
+
         const doses = []
         for (const [category, items] of Object.entries(checkedItemsByCategory)) {
+            //  if (!Array.isArray(items)) continue;
             const quantity = Math.floor(value / items.length); // חישוב הכמות
 
             // הוסף כל פריט בקטגוריה ל-doses
@@ -62,14 +70,16 @@ const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState,
 
 
         } try {
-            console.log(datas)
-            console.log(datas.userName);
-            const res = await Axios.get(`http://localhost:1233/api/User/${datas.userName}`,
+
+
+            const res = await Axios.get(`http://localhost:1233/api/User/userName${datas.userName}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 })
+            console.log("res.data", res.data);
+
             const order = {
                 user: res.data._id,
                 doses: doses,
@@ -84,6 +94,7 @@ const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState,
                 // PaymentStatus: datas.PaymentStatus,
                 PaymentMethod: value2
             }
+            console.log(order);
 
 
             setOrderUpdateState(false)
@@ -107,26 +118,60 @@ const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState,
         }
     }
 
-    // const UpdateOrder = async (datas) => {
-    //     datas._id = MyUpdatOrder._id;
-    //     console.log(datas);
-    //     try {
-    //         const { data } = await Axios.put("http://localhost:1233/api/Order", datas)
-    //         getOrder()
-    //         setOrderUpdateState(false)
-    //         console.log(setOrderUpdateState);
+    const UpdateOrder = async (datas) => {
+        try {
+            const res = await Axios.get(`http://localhost:1233/api/User/userName${datas.userName}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+            console.log("res.data", res.data);
+            datas.Notes = text;
+            datas.EventType = value1;
+            datas.PaymentMethod = value2;
+            datas.doses = MyUpdatOrder.doses;
+            datas.user = res.data._id;
+            datas._id = MyUpdatOrder._id;
+            console.log("value3",value3);
+            
+            datas.status = value3;
+            console.log("datas",datas);
 
-    //     }
-    //     catch (ex) {
+            const { data } = await Axios.put("http://localhost:1233/api/Order", datas,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+            console.log("data", data);
+            console.log("datas", datas);
 
-    //     }
-    // }
+
+            // 
+            console.log("OrderUpdateState", OrderUpdateState);
+
+            setOrderUpdateState(false)
+            console.log("setOrderUpdateState", setOrderUpdateState);
+            getAllOrders()
+        }
+        catch (ex) {
+
+        }
+    }
 
     const onSubmit = (data) => {
         console.log(data);
         setFormData(data);
         reset();
-        addOrder(data)
+        console.log("data", data);
+
+        console.log("MyUpdatOrder", MyUpdatOrder);
+        if (MyUpdatOrder.doses) {
+            UpdateOrder(data)
+        } else {
+            addOrder(data)
+        }
     };
 
     const getFormErrorMessage = (name) => {
@@ -153,7 +198,16 @@ const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState,
         let filtered = _items.filter(item => item.toLowerCase().includes(query))
         setAutoCompleteSuggestions(filtered);
     }
+ const searchStatus = (event) => {
 
+        // let filtered = products.filter(
+        //   (product) => product.name.toLowerCase().includes(query)
+
+        let query = event.query ? event.query.toLowerCase() : '';
+        let _items = ['Pending', 'In Progress', 'Completed'];
+        let filtered = _items.filter(item => item.toLowerCase().includes(query))
+        setAutoCompleteSuggestions(filtered);
+    }
 
     return (
 
@@ -225,7 +279,10 @@ const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState,
                             </div>
                             <div className="field">
                                 <div className="card flex justify-content-center">
-                                    <AutoComplete value={value1} suggestions={autoCompleteSuggestions} completeMethod={search} onChange={(e) => setValue1(e.value)} placeholder="EventType" dropdown />
+                                    <Controller name="EventType" control={control} render={({ field, fieldState }) => (
+
+                                        <AutoComplete value={value1} suggestions={autoCompleteSuggestions} completeMethod={search} onChange={(e) => setValue1(e.value)} placeholder="EventType" dropdown />
+                                    )} />
                                 </div>
                             </div>
                             <div className="field">
@@ -233,6 +290,11 @@ const AddOrder = ({ visible, value, checkedItemsByCategory, setOrderUpdateState,
                                     <AutoComplete value={value2} suggestions={autoCompleteSuggestions} completeMethod={searchPaymentMethod} onChange={(e) => setValue2(e.value)} placeholder="PaymentMethod" dropdown />
                                 </div>
                             </div>
+                          { role==="Admin"?<div className="field">
+                                <div className="card flex justify-content-center">
+                                    <AutoComplete value={value3} suggestions={autoCompleteSuggestions} completeMethod={searchStatus} onChange={(e) => setValue3(e.value)} placeholder="Status" dropdown />
+                                </div>
+                            </div>:<></>}
                             <div> If you have some notes:</div>
                             <Editor value={text} onTextChange={(e) => setText(e.textValue)} style={{ height: '320px' }} />
                             <div className="field"></div>

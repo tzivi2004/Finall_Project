@@ -1,23 +1,28 @@
 const User = require("../models/User")
-
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const createNewUser = async (req, res) => {
     const { name, username, password, email, phone, roles } = req.body
+    console.log("Waiter",roles);
+    console.log( name, username, password, email, phone, roles );
+    
+    
     if (!name || !password) {
-        return res.status(400).json({ message: "Name and password are required" })
+        return res.status(404).json({ message: "Name and password are required" })
     }
     const newUser = await User.findOne({ password })
     if (newUser) {
         return res.status(400).json({ message: "User already exists" })
     }
-    // const hashedPwd = await bcrypt.hash(password,10)
+    const hashedPwd = await bcrypt.hash(password, 10)
     const user = await User.create({
         name,
         username,
-        password,
+        password: hashedPwd,
         email,
         phone,
-        roles
+        roles:"Waiter"
     })
     res.json({ message: "User created successfully", user })
 }

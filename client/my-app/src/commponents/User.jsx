@@ -125,8 +125,8 @@ return (
     <>
     <div className="card">
         {
-         UserUpdateState?<Useradd setUserUpdateState={setUserUpdateState}  visible={UserUpdateState}  setUsers={setUsers} users={users} SetMyUpdatUser={SetMyUpdatUser} MyUpdatUser={MyUpdatUser} getUser={getUser}></Useradd>:
-    <><div className="card flex justify-content-center"> </div><DataScroller value={users} itemTemplate={itemTemplate} rows={5} inline scrollHeight="500px" header="Scroll Down to Load More" /> </>  
+         UserUpdateState?<Useradd setUserUpdateState={setUserUpdateState} getYorUser={getYorUser}  visible={UserUpdateState}  setUsers={setUsers} users={users} SetMyUpdatUser={SetMyUpdatUser} MyUpdatUser={MyUpdatUser} getUser={getUser}></Useradd>:
+    <>{role==="Admin"?<div className="card flex justify-content-center"><Button icon="pi pi-user-plus" label="Add Waiter" onClick={() => {addUserEzer()}} /> </div>:<></>}<DataScroller value={users} itemTemplate={itemTemplate} rows={5} inline scrollHeight="500px" header="Scroll Down to Load More" /> </>  
         }
     </div>
     </>

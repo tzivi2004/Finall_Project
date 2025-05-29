@@ -23,7 +23,8 @@ const createNewPortion = async (req, res) => {
 }
 
 const getAllPortions = async (req, res) => {
-    const portions = await Portion.find().lean()
+    const portions = await Portion.find().populate('ingredients.product').lean()
+
     if (!portions?.length) {
         return res.json([])
         // return res.status(404).json({ message: "No doses found" })

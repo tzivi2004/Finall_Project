@@ -8,81 +8,72 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { FileUpload } from 'primereact/fileupload';
 import { AutoComplete } from 'primereact/autocomplete';
-import { ListBox } from 'primereact/listbox';
 import { MultiSelect } from 'primereact/multiselect';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
-
-
-
-function Image({
-  visible,
-  setProtionUpdateState,
-  ProtionUpdateState,
-  MyUpdatProtion,
-  getProtion
-}) {
-
+function Image({ visible, setProtionUpdateState, ProtionUpdateState, MyUpdatProtion, getProtion }) {
   const [selectedCities, setSelectedCities] = useState([]);
-
-  const { token, role, user } = useSelector((state) => state.token);
-
+  const { token } = useSelector((state) => state.token);
   const toast = useRef(null);
-  const [file, setFile] = useState(null);
   const [images, setImages] = useState([]);
-
   const [productGroups, setProductGroups] = useState([]);
   const [categories, setCategories] = useState([]);
   const [autoCompleteSuggestions, setAutoCompleteSuggestions] = useState([]);
-
-
-  const { control, formState: { errors }, handleSubmit } = useForm();
   const [products, setProducts] = useState([]);
-  const [value, setValue] = useState('');
-  const [items, setItems] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [value, setValue] = useState(MyUpdatProtion ? MyUpdatProtion.category : "");
 
+  const defaultValues = {
+    name: MyUpdatProtion.name,
+    price: MyUpdatProtion.price,
+    description: MyUpdatProtion.description,
+    category: MyUpdatProtion.category,
+    image: MyUpdatProtion.image,
+    ingredients: []
+  };
+
+  const { control, formState: { errors }, handleSubmit } = useForm({ defaultValues });
 
   const getProduct = async () => {
     try {
-      console.log("data");
-      const { data } = await Axios.get("http://localhost:1233/api/Product",
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                })
-      console.log(data);
-      setProducts(data)
-      setProductGroups(groupProductsByCategory(data)); // Set initial items to all products grouped by category
+      const { data } = await Axios.get("http://localhost:1233/api/Product", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setProducts(data);
+      setProductGroups(groupProductsByCategory(data));
       setCategories([...new Set(data.map(p => p.category || 'ללא קטגוריה'))]);
-    }
-    catch (ex) {
+    } catch (ex) {
       console.log(ex);
-
-      // <Button icon="pi pi-user-plus" label="Add User" onClick={()=>addUserEzer()} />
     }
-  }
+  };
+
+  // Set selectedCities to actual product objects after products are loaded
+  useEffect(() => {
+    getProduct();
+  }, []);
 
   useEffect(() => {
-    getProduct()
-  }, [])
+    if (MyUpdatProtion && MyUpdatProtion.ingredients && products.length > 0) {
+      const selected = MyUpdatProtion.ingredients
+        .map(ing => products.find(p => p._id === (ing.product._id || ing.product)))
+        .filter(Boolean);
+      setSelectedCities(selected);
+    }
+  }, [MyUpdatProtion, products]);
+
+  useEffect(() => {
+    if (MyUpdatProtion && MyUpdatProtion.image) {
+      setImages(Array.isArray(MyUpdatProtion.image) ? MyUpdatProtion.image : [MyUpdatProtion.image]);
+    }
+  }, [MyUpdatProtion]);
 
   const onSubmit = async (data) => {
     try {
-      const idProducts = selectedCities.map((item) => item._id); // Extract the IDs of selected products
-      console.log("data", data);
-      console.log("autoCompleteSuggestions", autoCompleteSuggestions);
-      console.log("idProducts", idProducts);
-      console.log("selectedCities",selectedCities);
-      console.log("value", value);
       const portionData = {
         ...data,
         category: value,
         ingredients: selectedCities.map((item) => ({ product: item._id })),
-        image: images // Attach the image URL to the portion data
+        image: images
       };
-
       if (MyUpdatProtion.name) {
         await updateProtion(portionData);
       } else {
@@ -96,33 +87,21 @@ function Image({
 
   const addProtion = async (portionData) => {
     try {
-      const response = await Axios.post("http://localhost:1233/api/Portion", portionData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
+      await Axios.post("http://localhost:1233/api/Portion", portionData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       toast.current.show({ severity: 'success', summary: 'Success', detail: 'Portion added successfully.' });
-      setProtionUpdateState(false)
+      setProtionUpdateState(false);
       getProtion();
-    }
-    catch (error) {
-      //   console.error(error);
-      //   toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to add portion.' });
-      // }
-    }
+    } catch (error) {}
   };
 
   const updateProtion = async (portionData) => {
-    portionData.id = MyUpdatProtion._id; // Ensure to include ID for updating
+    portionData.id = MyUpdatProtion._id;
     try {
-      const response = await Axios.put("http://localhost:1233/api/Portion", portionData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-      );
+      await Axios.put("http://localhost:1233/api/Portion", portionData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       getProtion();
       setProtionUpdateState(false);
       toast.current.show({ severity: 'success', summary: 'Success', detail: 'Portion updated successfully.' });
@@ -133,65 +112,45 @@ function Image({
   };
 
   const onUpload = async (event) => {
-    console.log(event);
     const uploadedFiles = event.files;
-
-    // Create FormData object
     const formData = new FormData();
     uploadedFiles.forEach((file) => formData.append('images[]', file));
-
     try {
       const res = await Axios.post('http://localhost:1233/api/Portion/upload-image', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',Authorization: `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` },
       });
-
       const uploadedImageUrls = res.data.map((file) => file.url);
-
-      setImages((prevImages) => [...prevImages, ...uploadedImageUrls]);
+      setImages(prevImages => [
+        uploadedImageUrls[0],
+        ...prevImages.slice(1)
+      ]);
     } catch (error) {
       console.error('Upload failed:', error);
     }
   };
-  const onClear = () => {
-    setImages([]);
-    console.log('Upload canceled');
-  };
 
   const search = (event) => {
-
-    // let filtered = products.filter(
-    //   (product) => product.name.toLowerCase().includes(query)
-
     let query = event.query ? event.query.toLowerCase() : '';
     let _items = ['On the table', 'salad', 'first course', 'main course', 'Extras', 'dessert'];
-    let filtered = _items.filter(item => item.toLowerCase().includes(query))
+    let filtered = _items.filter(item => item.toLowerCase().includes(query));
     setAutoCompleteSuggestions(filtered);
-  }
-
-  const groupedItemTemplate = (option) => {
-    return (
-      <div className="flex align-items-center">
-        <div>{option.label}</div>
-      </div>
-    );
   };
+
+  const groupedItemTemplate = (option) => (
+    <div className="flex align-items-center">
+      <div>{option.label}</div>
+    </div>
+  );
 
   const groupProductsByCategory = (products) => {
     const grouped = {};
-
     products.forEach(product => {
       const category = product.category || "ללא קטגוריה";
       if (!grouped[category]) {
         grouped[category] = [];
       }
-      grouped[category].push({
-        label: product.name,
-        value: product, // אפשר גם לשים רק את ה-id אם תרצה
-      });
+      grouped[category].push(product);
     });
-
     return Object.keys(grouped).map(category => ({
       label: category,
       items: grouped[category],
@@ -211,14 +170,16 @@ function Image({
                   <Controller name="name" control={control} rules={{ required: 'Name is required.' }} render={({ field, fieldState }) => (
                     <InputText id={field.name} {...field} className={classNames({ 'p-invalid': fieldState.invalid })} />
                   )} />
-                  <label htmlFor="name" className={classNames({ 'p-error': errors.name })}>Name*</label>
+                  <label htmlFor="name" className={classNames({ 'p-error': errors.name })}>{MyUpdatProtion.name ? MyUpdatProtion.name : "Name*"}</label>
                 </span>
                 {errors.name && <small className="p-error">{errors.name.message}</small>}
               </div>
 
               <div className="field">
                 <div className="card flex justify-content-center">
-                  <AutoComplete value={value} suggestions={autoCompleteSuggestions} completeMethod={search} onChange={(e) => setValue(e.value)} placeholder="category" dropdown />
+                  <Controller name="category" control={control} rules={{ required: 'category is required.' }} render={({ field, fieldState }) => (
+                    <AutoComplete value={value} suggestions={autoCompleteSuggestions} completeMethod={search} onChange={(e) => setValue(e.value)} placeholder={MyUpdatProtion.category ? MyUpdatProtion.category : "category"} dropdown />
+                  )} />
                 </div>
               </div>
 
@@ -227,7 +188,7 @@ function Image({
                   <Controller name="price" control={control} render={({ field }) => (
                     <InputText id={field.name} {...field} />
                   )} />
-                  <label htmlFor="price">Price</label>
+                  <label htmlFor="price">{MyUpdatProtion.price ? MyUpdatProtion.price : "Price"}</label>
                 </span>
               </div>
 
@@ -236,41 +197,72 @@ function Image({
                   <Controller name="description" control={control} render={({ field }) => (
                     <InputText id={field.name} {...field} />
                   )} />
-                  <label htmlFor="description">Description</label>
+                  <label htmlFor="description">{MyUpdatProtion.description ? MyUpdatProtion.description : "Description"}</label>
                 </span>
               </div>
 
               <div className="field">
                 <span className="p-float-label">
-
-
-                  <FileUpload
-                    name="images[]"
-                    url="http://localhost:1233/api/Portion/upload-image" // Replace with the correct API endpoint
-                    multiple // Allow selecting multiple files
-                    accept="image/*" // Accept only image files
-                    maxFileSize={100000000} // Max file size: 1MB
-
-                    onUpload={onUpload}
-                    chooseLabel="הוספת תמונות"
-                    cancelLabel="ביטול"
-                    // uploadLabel="Upload"
-                    auto
+                  <Controller
+                    name="image"
+                    control={control}
+                    render={({ field }) => (
+                      <>
+                        {images && images[0] && (
+                          <div style={{
+                            marginBottom: '10px',
+                            border: '1px solid #ccc',
+                            borderRadius: '8px',
+                            padding: '8px',
+                            display: 'inline-block',
+                            position: 'relative',
+                            width: 110,
+                            height: 110,
+                            background: '#fafafa'
+                          }}>
+                            <img
+                              src={images[0]}
+                              alt="portion"
+                              style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: '4px' }}
+                            />
+                          </div>
+                        )}
+                        <FileUpload
+                          name="images[]"
+                          url="http://localhost:1233/api/Portion/upload-image"
+                          multiple={false}
+                          accept="image/*"
+                          maxFileSize={100000000}
+                          onUpload={onUpload}
+                          chooseLabel={MyUpdatProtion.image?"החלף תמונה":"הוסף תמונה"}
+                          cancelLabel="ביטול"
+                          auto
+                        />
+                      </>
+                    )}
                   />
                 </span>
               </div>
-              <div className="card flex justify-content-center">
-                <MultiSelect value={selectedCities}
-                  options={productGroups}
-                  onChange={(e) => setSelectedCities(e.value)}
-                  optionLabel="label"
-                  optionGroupLabel="label"
-                  optionGroupChildren="items"
-                  optionGroupTemplate={groupedItemTemplate}
-                  placeholder="בחר מוצרים"
-                  display="chip"
-                  className="w-full md:w-20rem" />
-              </div>
+
+              <Controller
+                name="ingredients"
+                control={control}
+                render={({ field }) => (
+                  <div className="card flex justify-content-center">
+                    <MultiSelect
+                      value={selectedCities}
+                      options={productGroups}
+                      onChange={(e) => setSelectedCities(e.value)}
+                      optionLabel="name"
+                      optionGroupLabel="label"
+                      optionGroupChildren="items"
+                      optionGroupTemplate={groupedItemTemplate}
+                      placeholder="בחר מוצרים"
+                      display="chip"
+                      className="w-full md:w-20rem"
+                    />
+                  </div>
+                )} />
 
               <Button type="submit" label={MyUpdatProtion.name ? "Update Portion" : "Add Portion"} className="mt-2" />
             </form>
