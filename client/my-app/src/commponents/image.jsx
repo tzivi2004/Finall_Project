@@ -23,11 +23,11 @@ function Image({ visible, setProtionUpdateState, ProtionUpdateState, MyUpdatProt
   const [value, setValue] = useState(MyUpdatProtion ? MyUpdatProtion.category : "");
 
   const defaultValues = {
-    name: MyUpdatProtion.name,
-    price: MyUpdatProtion.price,
-    description: MyUpdatProtion.description,
-    category: MyUpdatProtion.category,
-    image: MyUpdatProtion.image,
+    name: MyUpdatProtion.name?MyUpdatProtion.name:" ",
+    price: MyUpdatProtion.price?MyUpdatProtion.price:" ",
+    description: MyUpdatProtion.description?MyUpdatProtion.description:" ",
+    category: MyUpdatProtion.category?MyUpdatProtion.category:" ",
+    image: MyUpdatProtion.image?MyUpdatProtion.image:[],
     ingredients: []
   };
 
@@ -49,6 +49,7 @@ function Image({ visible, setProtionUpdateState, ProtionUpdateState, MyUpdatProt
   // Set selectedCities to actual product objects after products are loaded
   useEffect(() => {
     getProduct();
+    console.log("MyUpdatProtion",MyUpdatProtion);
   }, []);
 
   useEffect(() => {
@@ -67,6 +68,7 @@ function Image({ visible, setProtionUpdateState, ProtionUpdateState, MyUpdatProt
   }, [MyUpdatProtion]);
 
   const onSubmit = async (data) => {
+    alert("hhh");
     try {
       console.log("Submitted data:", data);
       
@@ -116,10 +118,17 @@ function Image({ visible, setProtionUpdateState, ProtionUpdateState, MyUpdatProt
   };
 
   const onUpload = async (event) => {
+
     const uploadedFiles = event.files;
     const formData = new FormData();
     uploadedFiles.forEach((file) => formData.append('images[]', file));
     try {
+      if(MyUpdatProtion?.image){
+        await Axios.delete('http://localhost:1233/api/Portion/delete-image', {
+          data: { url: MyUpdatProtion.image[0] },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+      }
       const res = await Axios.post('http://localhost:1233/api/Portion/upload-image', formData, {
         headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` },
       });
@@ -267,7 +276,6 @@ function Image({ visible, setProtionUpdateState, ProtionUpdateState, MyUpdatProt
                     />
                   </div>
                 )} />
-
               <Button type="submit" label={MyUpdatProtion.name ? "Update Portion" : "Add Portion"} className="mt-2" />
             </form>
           </div>

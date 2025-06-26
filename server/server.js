@@ -16,6 +16,7 @@ coonsctDB()
 
 app.use(cors(corsOptions))
 app.use(express.json())
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/');
@@ -29,7 +30,7 @@ const upload = multer({ storage: storage });
 
 // גישה לתמונות מהדפדפן
 
-// מסלול להעלאת תמונה ל-Portion (אפשר להעביר ל-route נפרד)
+// מסלול להעלאת תמונה ל-Portion 
 app.post('/api/Portion/upload-image', upload.array("images[]", 10),(req, res) => {
   if (!req.files) return res.status(400).json({ error: 'No file uploaded' });
   // הנתיב היחסי לתמונה

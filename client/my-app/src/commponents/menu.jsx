@@ -42,7 +42,7 @@ export default function Menu() {
         try {
             console.log("data");
             const { data } = await Axios.get("http://localhost:1233/api/Portion")
-            console.log(data);
+            console.log("data",data);
             setProtions(data)
         }
         catch (ex) {
@@ -72,7 +72,10 @@ export default function Menu() {
     }
 
     const updateProtionEzer = (Protion) => {
+        console.log(Protion);
+        
         SetMyUpdatProtion(Protion)
+        
         setProtionUpdateState(true)
     }
 
@@ -91,27 +94,33 @@ export default function Menu() {
     }
 
     useEffect(() => {
+        console.log("vv");
         getProtions()
     }, []);
 
 
     const groupByCategory = (items) => {
+        console.log("groupByCategory");
         // יוצרת אובייקט שבו כל מפתח הוא קטגוריה והערך הוא מערך של מנות באותה קטגוריה
         return items.reduce((groups, item) => {
             const category = item.category || 'ללא קטגוריה'; // אם אין קטגוריה, תן שם ברירת מחדל
             if (!groups[category]) groups[category] = [];    // אם עדיין אין מערך לקטגוריה, צור אותו
-            groups[category].push(item);                      // הוסף את המנה למערך של הקטגוריה
+            groups[category].push(item); 
+            console.log("category",category);
+            console.log(groups);                     // הוסף את המנה למערך של הקטגוריה
             return groups;
         }, {});
     };
 
     const listTemplate = (Protions, layout) => {
+        console.log("Protions",Protions);
         const grouped = groupByCategory(Protions); // קיבוץ כל המנות לפי קטגוריה
-        console.log(`bg ${grouped}`);
+        console.log(grouped);
+        console.log("categoryOrder",categoryOrder);
         return (
             <div>
                 {categoryOrder.map(category =>
-                    grouped[category] && grouped[category].length > 0 && (
+                    grouped[category] && grouped[category].length >= 0 && (
                         <div key={category}>
                             <h3 style={{ marginTop: '2rem', color: "#fba661", backgroundColor: "#61dafb" }}>{category}</h3>
                             {token?<h5 style={{ marginTop: '2rem', color: "#fba661", backgroundColor: "#61dafb" }}>{`You can choose ${value >= 60 ? "3 " : "2"} Order in this categorya:`}</h5>:<></>}
@@ -275,6 +284,7 @@ export default function Menu() {
     };
 
     const itemTemplate = (Protion, layout, index) => {
+        console.log("Protion",Protion);
         if (!Protion) {
             return;
         }

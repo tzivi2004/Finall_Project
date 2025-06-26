@@ -18,10 +18,10 @@ const AddOrder = ({ visible, getAllOrders, value, checkedItemsByCategory, setOrd
     const [value1, setValue1] = useState(MyUpdatOrder?.EventType || '');
     const [value2, setValue2] = useState(MyUpdatOrder?.PaymentMethod || '');
     const [value3, setValue3] = useState(MyUpdatOrder?.status || '');
-    
+
 
     const [text, setText] = useState(MyUpdatOrder?.Notes || '');
-    const { role,token } = useSelector((state) => state.token);
+    const { role, token } = useSelector((state) => state.token);
 
 
     const defaultValues = {
@@ -45,7 +45,7 @@ const AddOrder = ({ visible, getAllOrders, value, checkedItemsByCategory, setOrd
         console.log(checkedItemsByCategory);
         console.log("value", value);
         console.log("MyUpdatOrder", MyUpdatOrder);
-console.log(role==="Admin"?"Admin":"User");
+        console.log(role === "Admin" ? "Admin" : "User");
 
 
     }, []);
@@ -97,7 +97,7 @@ console.log(role==="Admin"?"Admin":"User");
             console.log(order);
 
 
-            setOrderUpdateState(false)
+
             const { data } = await Axios.post("http://localhost:1233/api/Order", order,
                 {
                     headers: {
@@ -109,7 +109,7 @@ console.log(role==="Admin"?"Admin":"User");
             console.log(data)
             console.log(OrderUpdateState);
             // getOrder()
-
+            setOrderUpdateState(false)
             console.log(OrderUpdateState);
 
         }
@@ -133,10 +133,10 @@ console.log(role==="Admin"?"Admin":"User");
             datas.doses = MyUpdatOrder.doses;
             datas.user = res.data._id;
             datas._id = MyUpdatOrder._id;
-            console.log("value3",value3);
-            
+            console.log("value3", value3);
+
             datas.status = value3;
-            console.log("datas",datas);
+            console.log("datas", datas);
 
             const { data } = await Axios.put("http://localhost:1233/api/Order", datas,
                 {
@@ -198,7 +198,7 @@ console.log(role==="Admin"?"Admin":"User");
         let filtered = _items.filter(item => item.toLowerCase().includes(query))
         setAutoCompleteSuggestions(filtered);
     }
- const searchStatus = (event) => {
+    const searchStatus = (event) => {
 
         // let filtered = products.filter(
         //   (product) => product.name.toLowerCase().includes(query)
@@ -290,11 +290,11 @@ console.log(role==="Admin"?"Admin":"User");
                                     <AutoComplete value={value2} suggestions={autoCompleteSuggestions} completeMethod={searchPaymentMethod} onChange={(e) => setValue2(e.value)} placeholder="PaymentMethod" dropdown />
                                 </div>
                             </div>
-                          { role==="Admin"?<div className="field">
+                            {role === "Admin" ? <div className="field">
                                 <div className="card flex justify-content-center">
                                     <AutoComplete value={value3} suggestions={autoCompleteSuggestions} completeMethod={searchStatus} onChange={(e) => setValue3(e.value)} placeholder="Status" dropdown />
                                 </div>
-                            </div>:<></>}
+                            </div> : <></>}
                             <div> If you have some notes:</div>
                             <Editor value={text} onTextChange={(e) => setText(e.textValue)} style={{ height: '320px' }} />
                             <div className="field"></div>
